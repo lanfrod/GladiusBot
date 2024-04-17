@@ -1,5 +1,6 @@
 import telebot
 import pymorphy2
+import sqlite3
 from translate import Translator
 import json
 import requests
@@ -13,11 +14,15 @@ with open('hesh.txt', 'r') as file:
         hesh[qq[i * 2]] = qq[i * 2 + 1]
 
 
-
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.')
 
+@bot.message_handler()
+def registration(message):
+    if message.text.lower == "регистрация":
+        conn = sqlite3.connect('users.sql')
+        cur = conn.cursor()
 
 @bot.message_handler(content_types=['text'])
 def get_weather(message):
