@@ -6,6 +6,12 @@ import requests
 
 bot = telebot.TeleBot('6392696125:AAGyTVi-0XKujfhTMY8MhgyfhtWWQFgLVPM')
 API = '14a04328ce615e1e649216386834a1a1'
+with open('hesh.txt', 'r') as file:
+    qq = str(file.read().split(' '))
+    hesh = {}
+    for i in range(0, len(qq) // 2):
+        hesh[qq[i * 2]] = qq[i * 2 + 1]
+
 
 
 @bot.message_handler(commands=['start'])
@@ -41,12 +47,12 @@ def get_weather(message):
         elif word1.lower() == "облачно":
             image = 'obl.png'
         elif word1.lower() == "пасмурные облака":
-            image = '34-6.jpg'
+            image = 'ty4a.jpg'
         elif word1.lower() == "дым":
             image = 'tyman.jpg'
         else:
             image = 'loading-13.gif'
-        file = open('./' + image, 'rb')
+        file = open('img/' + image, 'rb')
         bot.send_photo(message.chat.id, file)
     else:
         bot.reply_to(message, "Город не найден. Попробуйте снова.")
