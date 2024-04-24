@@ -1,22 +1,44 @@
 import telebot
+from telebot import types
 import pymorphy2
 import sqlite3
 from translate import Translator
 import json
 import requests
+from youtube_search import YoutubeSearch
+from googlesearch import search
 
-bot = telebot.TeleBot('6392696125:AAGyTVi-0XKujfhTMY8MhgyfhtWWQFgLVPM')
-API = '14a04328ce615e1e649216386834a1a1'
-with open('hesh.txt', 'r') as file:
-    qq = str(file.read().split(' '))
-    hesh = {}
-    for i in range(0, len(qq) // 2):
-        hesh[qq[i * 2]] = qq[i * 2 + 1]
+bot = telebot.TeleBot('6851175195:AAF8vfmlpJWCWioSo-sOpPpZKDAAx6jAbN8')
+API = 'f2d22ddb2ceebe30809c690d48af0e56'
+
+
+@bot.message_handler(commands=['google'])
+def google(message):
+    query = message.text.strip()
+    print(1)
+    print(query)
+    print(message)
+    for i in search(query, tld='co.in', lang='ru', num=3, stop=10, pause=2):
+        bot.send_message(message.chat.id, i)
+
+
+@bot.message_handler(commands=['video'])
+def video(message):
+    vid = message.text.strip()
+    print(vid)
+    results = YoutubeSearch(vid).to_dict()
+    print(results)
+    for i in range(3):
+        bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.')
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton("❓")
+    markup.add(btn1)
+    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.', reply_markup=markup)
+
 
 @bot.message_handler()
 def registration(message):
