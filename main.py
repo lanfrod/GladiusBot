@@ -13,7 +13,7 @@ import smtplib
 from youtube_search import YoutubeSearch
 from googlesearch import search
 
-bot = telebot.TeleBot(passss.api_bot) # yeap
+bot = telebot.TeleBot("6392696125:AAEpgzG7goYrzdYga71WqE_E6bZhCsPpx9U")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -56,19 +56,22 @@ def game(message):
     if id not in toft:
         if len(qua) == 5:
             game_lobby = ",".join(s) + ',' + id
-            with open('game_lobby.txt', 'w') as file: file.write(game_lobby)
+            with open('game_lobby.txt', 'w') as file:
+                file.write(game_lobby)
         elif len(qua) == 1 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
             mesid = str(mesid.id)
             print(mesid, "MESID")
-            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid # изменить
-            with open('game_lobby.txt', 'w') as file: file.write(game_lobby)
+            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid  # изменить
+            with open('game_lobby.txt', 'w') as file:
+                file.write(game_lobby)
             print(mesid)
             print("AOAOIFDOIAOFIOAI")
             play(message)
         else:
             game_lobby = id
-            with open('game_lobby.txt', 'w') as file: file.write(game_lobby)
+            with open('game_lobby.txt', 'w') as file:
+                file.write(game_lobby)
     elif id in toft:
         for i in s:
             print(i)
@@ -124,7 +127,7 @@ def play(message):
                 bot.send_message(int(player2), "Вы - нолик. Выберите поле для хода.", reply_markup=markup)
             else:
                 bot.send_message(int(player2), "Выберите поле для хода.", reply_markup=markup)
-        #mesid += 2
+        # mesid += 2
 
 
 @bot.callback_query_handler(func=lambda callback: True)
@@ -173,26 +176,26 @@ def callback_mes(callback):
                     pol[t - 1] = "o"
                     pol = "/".join(pol)
                     wait = li[0]
-                bot.delete_message(int(move), int(li[4]) + 1) # 74 # 77 #81
-                bot.delete_message(int(move), int(li[4]) + 2) # 75 # 78 # 82
+                bot.delete_message(int(move), int(li[4]) + 1)  # 74 # 77 #81
+                bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 78 # 82
                 if int(li[2]) == 1:
-                    bot.delete_message(int(wait), int(li[4])) # 73
-                    #li[4] = str(int(li[4]) + 1) # 76
+                    bot.delete_message(int(wait), int(li[4]))  # 73
+                    # li[4] = str(int(li[4]) + 1) # 76
                 elif int(li[2]) != 1:
-                    bot.delete_message(int(wait), int(li[4])) # 76
-                    bot.delete_message(int(move), int(li[4]) + 3) # 79
-                    #li[4] = str(int(li[4]) + 2)
+                    bot.delete_message(int(wait), int(li[4]))  # 76
+                    bot.delete_message(int(move), int(li[4]) + 3)  # 79
+                    # li[4] = str(int(li[4]) + 2)
                 qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
                 mesid = qu.id
                 bot.send_message(int(wait), "Соперник сделал ход")
-                timered = [li[0], li[1], str(int(li[2]) + 1), pol, str(mesid)] # 76 # 80
+                timered = [li[0], li[1], str(int(li[2]) + 1), pol, str(mesid)]  # 76 # 80
                 r = '.'.join(timered)
                 s[count - 1] = r
                 game_lobby = ','.join(s)
                 with open('game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
                 play(int(wait))
-                #bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
+                # bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
             else:
                 if li[0] == move:
                     wait = li[1]
@@ -201,10 +204,10 @@ def callback_mes(callback):
                 bot.send_message(int(wait), "Ваш ход принят. Ожидайте соперника")
                 qu = bot.send_message(int(move), "Это поле занято. Выберите другое поле.")
                 mesid = qu.id - 1
-                bot.delete_message(int(wait), int(li[4])) # 80
-                bot.delete_message(int(move), int(li[4]) + 1) # 80
-                bot.delete_message(int(move), int(li[4]) + 2) # 75 # 81
-                bot.delete_message(int(move), int(li[4]) + 3) # 75 # 82
+                bot.delete_message(int(wait), int(li[4]))  # 80
+                bot.delete_message(int(move), int(li[4]) + 1)  # 80
+                bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 81
+                bot.delete_message(int(move), int(li[4]) + 3)  # 75 # 82
                 pol = "/".join(pol)
                 timered = [li[0], li[1], str(int(li[2])), pol, str(mesid)]
                 print(str(int(li[2])))
@@ -213,11 +216,28 @@ def callback_mes(callback):
                 game_lobby = ','.join(s)
                 with open('game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
+                if (pol[0] == "o" and pol[2] == "o" and pol[4] == "o" or
+                        pol[6] == "o" and pol[8] == "o" and pol[10] == "o" or
+                        pol[12] == "o" and pol[14] == "o" and pol[16] == "o" or
+                        pol[0] == "o" and pol[6] == "o" and pol[12] == "o" or
+                        pol[2] == "o" and pol[8] == "o" and pol[14] == "o" or
+                        pol[4] == "o" and pol[10] == "o" and pol[16] == "o" or
+                        pol[0] == "o" and pol[8] == "o" and pol[16] == "o" or
+                        pol[12] == "o" and pol[8] == "o" and pol[4] == "o"):
+                    bot.send_message(int(wait), "Победа игрока о")
+                    bot.send_message(int(move), "Победа игрока о")
+                elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
+                      pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
+                      pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
+                      pol[0] == "x" and pol[6] == "x" and pol[12] == "x" or
+                      pol[2] == "x" and pol[8] == "x" and pol[14] == "x" or
+                      pol[4] == "x" and pol[10] == "x" and pol[16] == "x" or
+                      pol[0] == "x" and pol[8] == "x" and pol[16] == "x" or
+                      pol[12] == "x" and pol[8] == "x" and pol[4] == "x"):
+                    bot.send_message(int(wait), "Победа игрока x")
+                    bot.send_message(int(move), "Победа игрока x")
+
                 play(int(move))
-
-
-
-
 
 
 @bot.message_handler(commands=['google'])
@@ -245,7 +265,8 @@ def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("❓")
     markup.add(btn1)
-    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.',
+                     reply_markup=markup)
 
 
 @bot.message_handler(commands=['site', 'website'])
@@ -268,17 +289,17 @@ def registration(message):
     print(message)
     conn = sqlite3.connect("users.db")
     cur = conn.cursor()
-    #TYPE - ЗОЛОТАЯ ВЕЩЬ
+    # TYPE - ЗОЛОТАЯ ВЕЩЬ
     sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
     if message.text.lower() == "регистрация" or message.text.lower() == '/registration':
         if sos2:
             bot.send_message(message.chat.id, 'Данный аккаунт уже зарегистрирован')
-            #bot.delete_message(message.chat.id, message.message_id)
+            # bot.delete_message(message.chat.id, message.message_id)
             bot.clear_step_handler(message)
         else:
             bot.send_message(message.chat.id, f'{message.from_user.username.capitalize()}, чтобы зарегистрироваться'
-                                          f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
-                                          f'из латинских букв разного регистра, цифр')
+                                              f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
+                                              f'из латинских букв разного регистра, цифр')
             bot.register_next_step_handler(message, user_name)
     else:
         get_weather(message)
@@ -298,8 +319,9 @@ def user_name(message):
         print(proverb)
         conn.close()
         if not proverb:
-            bot.send_message(message.chat.id, 'Введите пароль. Он может состоять из латинских букв разного регистра, цифр '
-                                              'специальных символов и нижнего подчёркивания.')
+            bot.send_message(message.chat.id,
+                             'Введите пароль. Он может состоять из латинских букв разного регистра, цифр '
+                             'специальных символов и нижнего подчёркивания.')
             bot.register_next_step_handler(message, user_pass)
         else:
             bot.send_message(message.chat.id, 'Такой пользователь уже существует. Введите другой логин')
@@ -344,20 +366,21 @@ def user_email(message):
         sos1 = cur.execute('''SELECT * FROM userinfo WHERE email = ?''', (email,)).fetchall()
         if sos1:
             raise Exception()
-        mani.send_email(email, 'Registration', f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
-                                               f' в чате с ботом')
+        mani.send_email(email, 'Registration',
+                        f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
+                        f' в чате с ботом')
         up = mani.pat()
-        res = '' # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
+        res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
         for i in up:
             res += i
         print(res)
-        cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res, ))
+        cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
         bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с капчи')
         conn.commit()
         conn.close()
         bot.register_next_step_handler(message, cap)
         print(1)
-    except Exception: #ошибка с некорректной почтой
+    except Exception:  # ошибка с некорректной почтой
         bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
         bot.register_next_step_handler(message, user_email)
         print(3)
@@ -365,7 +388,7 @@ def user_email(message):
         bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
         bot.register_next_step_handler(message, user_email)
         print(2)
-    #образец send_email("akolelow@mail.ru", 'Registration', f'Вот капча для подтверждения регистрации')
+    # образец send_email("akolelow@mail.ru", 'Registration', f'Вот капча для подтверждения регистрации')
 
 
 def cap(message):
@@ -384,11 +407,12 @@ def cap(message):
         tg_id = message.from_user.id
         print(nickname)
         cur.execute("INSERT INTO passwords (login, pass) VALUES ('%s', '%s')" % (name, hesh_password))
-        cur.execute("INSERT INTO userinfo (login, email, nickname, tg_id) VALUES ('%s', '%s', '%s', '%s')" % (name, email, nickname, tg_id))
+        cur.execute("INSERT INTO userinfo (login, email, nickname, tg_id) VALUES ('%s', '%s', '%s', '%s')" % (
+        name, email, nickname, tg_id))
         conn.commit()
         conn.close()
         markup = telebot.types.InlineKeyboardMarkup()
-        #markup.add(telebot.types.InlineKeyboardButton('Список пользователей', callback_data='users'))
+        # markup.add(telebot.types.InlineKeyboardButton('Список пользователей', callback_data='users'))
         bot.send_message(message.chat.id, f'Пользователь {name} зарегистрирован', reply_markup=markup)
 
 
@@ -409,8 +433,8 @@ def get_weather(message):
             word1 = "пасмурные облака"
         else:
             word1 = Translator(from_lang="english", to_lang="russian").translate(data["weather"][0]["description"])
-        #s2 = morph.parse(word1)[1].inflect({"ADJF"}).inflect({"femn"})
-        #print(morph.parse(word1)[1])
+        # s2 = morph.parse(word1)[1].inflect({"ADJF"}).inflect({"femn"})
+        # print(morph.parse(word1)[1])
         bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}. Температура воздуха:'
                               f' {data["main"]["temp"]}°C')
         if word1.lower() == "ясно":
@@ -429,7 +453,6 @@ def get_weather(message):
         bot.send_photo(message.chat.id, file)
     else:
         bot.reply_to(message, "Город не найден. Попробуйте снова.")
-
 
 
 bot.polling(none_stop=True)
