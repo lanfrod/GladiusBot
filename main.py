@@ -43,22 +43,28 @@ def all_messages(message):
 
 @bot.message_handler(commands=['game'])
 def game(message):
+    global mesid
     with open('game_lobby.txt', 'r') as file:
         s = file.read().split(',')
         print(s)
         toft = ','.join(s)
     qua = s[-1].split('.')
     id = str(message.from_user.id)
+    print(message, "MESSAGE")
     print(toft)
     ro = False
     if id not in toft:
-        if len(qua) == 4:
+        if len(qua) == 5:
             game_lobby = ",".join(s) + ',' + id
             with open('game_lobby.txt', 'w') as file: file.write(game_lobby)
         elif len(qua) == 1 and qua[-1] != "":
-            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" # изменить
+            mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
+            mesid = str(mesid.id)
+            print(mesid, "MESID")
+            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid # изменить
             with open('game_lobby.txt', 'w') as file: file.write(game_lobby)
-            bot.send_message(message.chat.id, "Ожидайте хода соперника")
+            print(mesid)
+            print("AOAOIFDOIAOFIOAI")
             play(message)
         else:
             game_lobby = id
@@ -80,7 +86,7 @@ def play(message):
         s = file.read().split(',')
     for i in s:
         print(i.split('.'))
-        player1, player2, round_number, bo = i.split('.')
+        player1, player2, round_number, bo, mao = i.split('.')
         markup = types.InlineKeyboardMarkup()
         emoji = []
         for i in bo.split("/"):
@@ -118,6 +124,7 @@ def play(message):
                 bot.send_message(int(player2), "Вы - нолик. Выберите поле для хода.", reply_markup=markup)
             else:
                 bot.send_message(int(player2), "Выберите поле для хода.", reply_markup=markup)
+        #mesid += 2
 
 
 @bot.callback_query_handler(func=lambda callback: True)
@@ -156,51 +163,79 @@ def callback_mes(callback):
             print(li)
             pol = ""
             wait = ""
-            if li[0] == move and int(li[2]) % 2 == 1:
-                pol = li[3].split("/")
-                print(pol)
-                pol[t - 1] = "x"
+            pol = li[3].split("/")
+            if pol[t - 1] == "?":
+                if li[0] == move and int(li[2]) % 2 == 1:
+                    pol[t - 1] = "x"
+                    pol = "/".join(pol)
+                    wait = li[1]
+                elif li[1] == move and int(li[2]) % 2 == 0:
+                    pol[t - 1] = "o"
+                    pol = "/".join(pol)
+                    wait = li[0]
+                bot.delete_message(int(move), int(li[4]) + 1) # 74 # 77 #81
+                bot.delete_message(int(move), int(li[4]) + 2) # 75 # 78 # 82
+                if int(li[2]) == 1:
+                    bot.delete_message(int(wait), int(li[4])) # 73
+                    #li[4] = str(int(li[4]) + 1) # 76
+                elif int(li[2]) != 1:
+                    bot.delete_message(int(wait), int(li[4])) # 76
+                    bot.delete_message(int(move), int(li[4]) + 3) # 79
+                    #li[4] = str(int(li[4]) + 2)
+                qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
+                mesid = qu.id
+                bot.send_message(int(wait), "Соперник сделал ход")
+                timered = [li[0], li[1], str(int(li[2]) + 1), pol, str(mesid)] # 76 # 80
+                r = '.'.join(timered)
+                s[count - 1] = r
+                game_lobby = ','.join(s)
+                with open('game_lobby.txt', 'w') as file:
+                    file.write(game_lobby)
+                play(int(wait))
+                #bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
+            else:
+                if li[0] == move:
+                    wait = li[1]
+                elif li[1] == move:
+                    wait = li[0]
+                bot.send_message(int(wait), "Ваш ход принят. Ожидайте соперника")
+                qu = bot.send_message(int(move), "Это поле занято. Выберите другое поле.")
+                mesid = qu.id - 1
+                bot.delete_message(int(wait), int(li[4])) # 80
+                bot.delete_message(int(move), int(li[4]) + 1) # 80
+                bot.delete_message(int(move), int(li[4]) + 2) # 75 # 81
+                bot.delete_message(int(move), int(li[4]) + 3) # 75 # 82
                 pol = "/".join(pol)
-                wait = li[1]
-            elif li[1] == move and int(li[2]) % 2 == 0:
-                pol = li[3].split("/")
-                pol[t - 1] = "o"
-                pol = "/".join(pol)
-                wait = li[0]
-            timered = [li[0], li[1], str(int(li[2]) + 1), pol]
-            r = '.'.join(timered)
-            s[count - 1] = r
-            print(s)
-            print(pol)
-            bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
-            bot.send_message(int(wait), "Соперник сделал ход")
-    game_lobby = ','.join(s)
-    with open('game_lobby.txt', 'w') as file:
-        file.write(game_lobby)
-    play(int(wait))
-    #bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
+                timered = [li[0], li[1], str(int(li[2])), pol, str(mesid)]
+                print(str(int(li[2])))
+                r = '.'.join(timered)
+                s[count - 1] = r
+                game_lobby = ','.join(s)
+                with open('game_lobby.txt', 'w') as file:
+                    file.write(game_lobby)
+                play(int(move))
+
+
+
 
 
 
 @bot.message_handler(commands=['google'])
 def google(message):
-    query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
-    bot.register_next_step_handler(query, tests_google)
-        
-def tests_google(message):
-    name = message.text.strip()
-    for i in search(name, tld='co.in', lang='russian', stop=3):
+    query = message.text.strip()
+    print(1)
+    print(query)
+    print(message)
+    for i in search(query, tld='co.in', lang='ru', num=3, stop=10, pause=2):
         bot.send_message(message.chat.id, i)
 
 
 @bot.message_handler(commands=['video'])
 def video(message):
-    query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
-    bot.register_next_step_handler(query, tests_video)
-        
-def tests_video(message):
-    name = message.text.strip()
-    results = YoutubeSearch(name).to_dict()
+    vid = message.text.strip()
+    print(vid)
+    results = YoutubeSearch(vid).to_dict()
+    print(results)
     for i in range(3):
         bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
