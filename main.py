@@ -4,6 +4,7 @@ import pymorphy2
 from PIL import Image, ImageDraw
 import sqlite3
 from translate import Translator
+import passss
 import json
 import requests
 import pole
@@ -12,7 +13,7 @@ import smtplib
 from youtube_search import YoutubeSearch
 from googlesearch import search
 
-bot = telebot.TeleBot('6392696125:AAGnEAYIEdXvoFrGtenmiEvhjAzgojkotpI')
+bot = telebot.TeleBot(passss.api_bot)
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -65,9 +66,7 @@ def game(message):
     elif id in toft:
         for i in s:
             print(i)
-            print(id == i.split(".")[0])
-            print(id == i.split(".")[1])
-            if ((id == i.split(".")[0]) or id == i.split(".")[1]) and int(i.split(".")[2]) > 1:
+            if (id in s) and int(i.split(".")[2]) > 1:
                 ro = True
         if ro:
             bot.register_next_step_handler(message, play)
@@ -76,23 +75,31 @@ def game(message):
 
 
 def play(message):
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton('❓', callback_data='left_top')
-    btn2 = types.InlineKeyboardButton('❓', callback_data='mid_top')
-    btn3 = types.InlineKeyboardButton('❓', callback_data='right_top')
-    btn4 = types.InlineKeyboardButton('❓', callback_data='left_mid')
-    btn5 = types.InlineKeyboardButton('❓', callback_data='mid_mid')
-    btn6 = types.InlineKeyboardButton('❓', callback_data='right_mid')
-    btn7 = types.InlineKeyboardButton('❓', callback_data='left_bot')
-    btn8 = types.InlineKeyboardButton('❓', callback_data='mid_bot')
-    btn9 = types.InlineKeyboardButton('❓', callback_data='right_bot')
-    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9)
     print(1)
     with open('game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
         print(i.split('.'))
         player1, player2, round_number, bo = i.split('.')
+        markup = types.InlineKeyboardMarkup()
+        emoji = []
+        for i in bo.split("/"):
+            if i == "?":
+                emoji.append("❓")
+            elif i == "x":
+                emoji.append("❌")
+            elif i == "o":
+                emoji.append("🅾️")
+        btn1 = types.InlineKeyboardButton(f'{emoji[0]}', callback_data='left_top')
+        btn2 = types.InlineKeyboardButton(f'{emoji[1]}', callback_data='mid_top')
+        btn3 = types.InlineKeyboardButton(f'{emoji[2]}', callback_data='right_top')
+        btn4 = types.InlineKeyboardButton(f'{emoji[3]}', callback_data='left_mid')
+        btn5 = types.InlineKeyboardButton(f'{emoji[4]}', callback_data='mid_mid')
+        btn6 = types.InlineKeyboardButton(f'{emoji[5]}', callback_data='right_mid')
+        btn7 = types.InlineKeyboardButton(f'{emoji[6]}', callback_data='left_bot')
+        btn8 = types.InlineKeyboardButton(f'{emoji[7]}', callback_data='mid_bot')
+        btn9 = types.InlineKeyboardButton(f'{emoji[8]}', callback_data='right_bot')
+        markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9)
         round_number = int(round_number)
         pole.board(bo)
         if round_number % 2 == 1:
