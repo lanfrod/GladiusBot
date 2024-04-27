@@ -249,20 +249,23 @@ def callback_mes(callback):
 
 @bot.message_handler(commands=['google'])
 def google(message):
-    query = message.text.strip()
-    print(1)
-    print(query)
-    print(message)
-    for i in search(query, tld='co.in', lang='ru', num=3, stop=10, pause=2):
+    query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
+    bot.register_next_step_handler(query, tests_google)
+
+def tests_google(message):
+    name = message.text.strip()
+    for i in search(name, tld='co.in', lang='russian', stop=3):
         bot.send_message(message.chat.id, i)
 
 
 @bot.message_handler(commands=['video'])
 def video(message):
-    vid = message.text.strip()
-    print(vid)
-    results = YoutubeSearch(vid).to_dict()
-    print(results)
+    query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
+    bot.register_next_step_handler(query, tests_video)
+
+def tests_video(message):
+    name = message.text.strip()
+    results = YoutubeSearch(name).to_dict()
     for i in range(3):
         bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
