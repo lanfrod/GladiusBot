@@ -13,7 +13,7 @@ import smtplib
 from youtube_search import YoutubeSearch
 from googlesearch import search
 
-bot = telebot.TeleBot("6392696125:AAEpgzG7goYrzdYga71WqE_E6bZhCsPpx9U")  # yeap
+bot = telebot.TeleBot("6392696125:AAHyu5ymG-OzjOcX_XbLnqNfe8Mwc762A9k")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -185,16 +185,44 @@ def callback_mes(callback):
                     bot.delete_message(int(wait), int(li[4]))  # 76
                     bot.delete_message(int(move), int(li[4]) + 3)  # 79
                     # li[4] = str(int(li[4]) + 2)
-                qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
-                mesid = qu.id
-                bot.send_message(int(wait), "Соперник сделал ход")
-                timered = [li[0], li[1], str(int(li[2]) + 1), pol, str(mesid)]  # 76 # 80
-                r = '.'.join(timered)
-                s[count - 1] = r
-                game_lobby = ','.join(s)
-                with open('game_lobby.txt', 'w') as file:
-                    file.write(game_lobby)
-                play(int(wait))
+                if (pol[0] == "o" and pol[2] == "o" and pol[4] == "o" or
+                        pol[6] == "o" and pol[8] == "o" and pol[10] == "o" or
+                        pol[12] == "o" and pol[14] == "o" and pol[16] == "o" or
+                        pol[0] == "o" and pol[6] == "o" and pol[12] == "o" or
+                        pol[2] == "o" and pol[8] == "o" and pol[14] == "o" or
+                        pol[4] == "o" and pol[10] == "o" and pol[16] == "o" or
+                        pol[0] == "o" and pol[8] == "o" and pol[16] == "o" or
+                        pol[12] == "o" and pol[8] == "o" and pol[4] == "o"):
+                    s.remove(i)
+                    bot.send_message(int(wait), "Победа игрока о")
+                    bot.send_message(int(move), "Победа игрока о")
+                elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
+                      pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
+                      pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
+                      pol[0] == "x" and pol[6] == "x" and pol[12] == "x" or
+                      pol[2] == "x" and pol[8] == "x" and pol[14] == "x" or
+                      pol[4] == "x" and pol[10] == "x" and pol[16] == "x" or
+                      pol[0] == "x" and pol[8] == "x" and pol[16] == "x" or
+                      pol[12] == "x" and pol[8] == "x" and pol[4] == "x"):
+                    print(s[0], i)
+                    print(s[0] == i)
+                    s.remove(i)
+                    game_lobby = ','.join(s)
+                    with open('game_lobby.txt', 'w') as file:
+                        file.write(game_lobby)
+                    bot.send_message(int(wait), "Победа игрока x")
+                    bot.send_message(int(move), "Победа игрока x")
+                else:
+                    qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
+                    mesid = qu.id
+                    bot.send_message(int(wait), "Соперник сделал ход")
+                    timered = [li[0], li[1], str(int(li[2]) + 1), pol, str(mesid)]  # 76 # 80
+                    r = '.'.join(timered)
+                    s[count - 1] = r
+                    game_lobby = ','.join(s)
+                    with open('game_lobby.txt', 'w') as file:
+                        file.write(game_lobby)
+                    play(int(wait))
                 # bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
             else:
                 if li[0] == move:
@@ -216,27 +244,6 @@ def callback_mes(callback):
                 game_lobby = ','.join(s)
                 with open('game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
-                if (pol[0] == "o" and pol[2] == "o" and pol[4] == "o" or
-                        pol[6] == "o" and pol[8] == "o" and pol[10] == "o" or
-                        pol[12] == "o" and pol[14] == "o" and pol[16] == "o" or
-                        pol[0] == "o" and pol[6] == "o" and pol[12] == "o" or
-                        pol[2] == "o" and pol[8] == "o" and pol[14] == "o" or
-                        pol[4] == "o" and pol[10] == "o" and pol[16] == "o" or
-                        pol[0] == "o" and pol[8] == "o" and pol[16] == "o" or
-                        pol[12] == "o" and pol[8] == "o" and pol[4] == "o"):
-                    bot.send_message(int(wait), "Победа игрока о")
-                    bot.send_message(int(move), "Победа игрока о")
-                elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
-                      pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
-                      pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
-                      pol[0] == "x" and pol[6] == "x" and pol[12] == "x" or
-                      pol[2] == "x" and pol[8] == "x" and pol[14] == "x" or
-                      pol[4] == "x" and pol[10] == "x" and pol[16] == "x" or
-                      pol[0] == "x" and pol[8] == "x" and pol[16] == "x" or
-                      pol[12] == "x" and pol[8] == "x" and pol[4] == "x"):
-                    bot.send_message(int(wait), "Победа игрока x")
-                    bot.send_message(int(move), "Победа игрока x")
-
                 play(int(move))
 
 
@@ -262,11 +269,7 @@ def video(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("❓")
-    markup.add(btn1)
-    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.',
-                     reply_markup=markup)
+    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.')
 
 
 @bot.message_handler(commands=['site', 'website'])
