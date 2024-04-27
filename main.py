@@ -13,7 +13,7 @@ import smtplib
 from youtube_search import YoutubeSearch
 from googlesearch import search
 
-bot = telebot.TeleBot(passss.api_bot)
+bot = telebot.TeleBot(passss.api_bot) # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
