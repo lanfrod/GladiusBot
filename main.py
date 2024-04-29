@@ -213,11 +213,23 @@ def callback_mes(callback):
                         pol[0] == "o" and pol[8] == "o" and pol[16] == "o" or
                         pol[12] == "o" and pol[8] == "o" and pol[4] == "o"):
                     s.remove(i)
+                    game_lobby = ','.join(s)
+                    with open(REPL + 'game_lobby.txt', 'w') as file:
+                        file.write(game_lobby)
                     bot.send_message(int(wait), "Победа игрока о")
                     bot.send_message(int(move), "Победа игрока о")
                     conn = sqlite3.connect(REPL + "users.db")
                     cur = conn.cursor()
-                    cur.execute('''SELECT * FROM leaderboard WHERE wins = ?''', wait).fetchone()
+                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (int(move),)).fetchone()
+                    if tabl:
+                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''', (tabl[1],)).fetchone()
+                        print(ss)
+                        if not ss:
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], 1))
+                        if ss:
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], ss[2] + 1))
+                        conn.commit()
+                        conn.close()
                 elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
                       pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
                       pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
@@ -236,7 +248,16 @@ def callback_mes(callback):
                     bot.send_message(int(move), "Победа игрока x")
                     conn = sqlite3.connect(REPL + "users.db")
                     cur = conn.cursor()
-                    cur.execute('''SELECT * FROM leaderboard WHERE wins = ?''', move).fetchone()
+                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (int(move),)).fetchone()
+                    if tabl:
+                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''', (tabl[1],)).fetchone()
+                        print(ss, "ss")
+                        if not ss:
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], 1))
+                        if ss:
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], ss[2] + 1))
+                        conn.commit()
+                        conn.close()
                 else:
                     qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
                     mesid = qu.id
