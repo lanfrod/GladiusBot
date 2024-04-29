@@ -22,6 +22,9 @@ NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
         'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '0']
+ENGLISH = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+        'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+        'w', 'x', 'y', 'z']
 PASSWORD = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
             'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
             'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
@@ -181,7 +184,6 @@ def callback_mes(callback):
             print(move)
             li = i.split(".")
             print(li)
-            pol = ""
             wait = ""
             pol = li[3].split("/")
             if pol[t - 1] == "?":
@@ -213,6 +215,9 @@ def callback_mes(callback):
                     s.remove(i)
                     bot.send_message(int(wait), "Победа игрока о")
                     bot.send_message(int(move), "Победа игрока о")
+                    conn = sqlite3.connect(REPL + "users.db")
+                    cur = conn.cursor()
+                    cur.execute('''SELECT * FROM leaderboard WHERE wins = ?''', wait).fetchone()
                 elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
                       pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
                       pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
@@ -229,6 +234,9 @@ def callback_mes(callback):
                         file.write(game_lobby)
                     bot.send_message(int(wait), "Победа игрока x")
                     bot.send_message(int(move), "Победа игрока x")
+                    conn = sqlite3.connect(REPL + "users.db")
+                    cur = conn.cursor()
+                    cur.execute('''SELECT * FROM leaderboard WHERE wins = ?''', move).fetchone()
                 else:
                     qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
                     mesid = qu.id
@@ -292,42 +300,21 @@ def tests_video(message):
         bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
 
-@bot.message_handler(commands=['site', 'website'])
+@bot.message_handler(commands=['contacts'])
 def site(message):
     print(6)
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton('Vk', url='https://vk.com/lanfrod'))
-    bot.send_message(message.chat.id, f'Привет, вот контакты разработчика', reply_markup=markup)
-
-
-@bot.message_handler(commands=['login'])
-def login(message):
-    print(message.text.lower())
-    print(message)
-    conn = sqlite3.connect(REPL + "users.db")
-    cur = conn.cursor()
-    sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
-    if message.text.lower() == "регистрация" or message.text.lower() == '/registration':
-        if sos2:
-            bot.send_message(message.chat.id, 'Данный аккаунт уже зарегистрирован')
-            bot.clear_step_handler(message)
-        else:
-            bot.send_message(message.chat.id, f'{message.from_user.username.capitalize()}, чтобы зарегистрироваться'
-                                              f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
-                                              f'из латинских букв разного регистра, цифр')
-            bot.register_next_step_handler(message, user_name)
-    else:
-        get_weather(message)
+    markup.add(types.InlineKeyboardButton('lanfrod', url='https://vk.com/lanfrod'))
+    markup.add(types.InlineKeyboardButton('intestine1', url='https://vk.com/intestine1'))
+    bot.send_message(message.chat.id, f'Привет, вот контакты разработчиков', reply_markup=markup)
 
 
 @bot.message_handler(commands=['registration'])
 def registration(message):
-    print(message.text.lower())
-    print(message)
     conn = sqlite3.connect(REPL + "users.db")
     cur = conn.cursor()
     sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
-    if message.text.lower() == "регистрация" or message.text.lower() == '/registration':
+    if message.text.lower() == '/registration':
         if sos2:
             bot.send_message(message.chat.id, 'Данный аккаунт уже зарегистрирован')
             bot.clear_step_handler(message)
@@ -336,8 +323,6 @@ def registration(message):
                                               f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
                                               f'из латинских букв разного регистра, цифр')
             bot.register_next_step_handler(message, user_name)
-    else:
-        get_weather(message)
 
 
 def user_name(message):
@@ -427,7 +412,6 @@ def user_email(message):
         print(2)
 
 
-
 def cap(message):
     global mistake
     captcha = message.text.strip()
@@ -467,9 +451,21 @@ def cap(message):
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
+    bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду')
+    bot.register_next_step_handler(message, answer)
+
+
+def answer(message):
     city = message.text.strip().lower()
-    morph = pymorphy2.MorphAnalyzer()
-    city_parse = morph.parse(city)[0].inflect({"loct"}).word
+    eng = False
+    for i in city:
+        if i in ENGLISH:
+            eng = True
+    if eng:
+        city_parse = city
+    if not eng:
+        morph = pymorphy2.MorphAnalyzer()
+        city_parse = morph.parse(city)[0].inflect({"loct"}).word
     s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
     if s.status_code == 200:
         data = json.loads(s.text)
