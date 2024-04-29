@@ -1,3 +1,4 @@
+#Удалить /data/ для использования в локальной сети
 import telebot
 from telebot import types
 import pymorphy2
@@ -13,6 +14,7 @@ import smtplib
 from youtube_search import YoutubeSearch
 from googlesearch import search
 
+mistake = 0
 bot = telebot.TeleBot("6392696125:AAHyu5ymG-OzjOcX_XbLnqNfe8Mwc762A9k")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
@@ -28,11 +30,22 @@ PASSWORD = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
             'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
             '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$',
             '%', '^', '&', '*', '_']
-with open('hesh.txt', 'r') as file:
+with open('/data/hesh.txt', 'r') as file:
     qq = str(file.read().split(' '))
     hesh = {}
     for i in range(0, len(qq) // 2):
         hesh[qq[i * 2]] = qq[i * 2 + 1]
+
+
+@bot.message_handler(commands=['help'])
+def all_messages(message):
+    bot.send_message(message.from_user.id, "Вот вам список команд, которые может выполнять бот \n "
+                                           "/start - Начните общение с ботом \n /help - Узнайте возможности бота \n "
+                                           "/weather - Узнайте погоду в городе \n "
+                                           "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн и сохранении нужных городов \n"
+                                           "/google - Выводит ссылки на самые популярные по запросу из интернете \n"
+                                           "/video - Выводит ссылки на самые популярные видео из YouTube \n"
+                                           "/game - Напишите и играйте в крестики-нолики!")
 
 
 @bot.message_handler(commands=['close'])
@@ -44,7 +57,7 @@ def all_messages(message):
 @bot.message_handler(commands=['game'])
 def game(message):
     global mesid
-    with open('game_lobby.txt', 'r') as file:
+    with open('/data/game_lobby.txt', 'r') as file:
         s = file.read().split(',')
         print(s)
         toft = ','.join(s)
@@ -56,21 +69,21 @@ def game(message):
     if id not in toft:
         if len(qua) == 5:
             game_lobby = ",".join(s) + ',' + id
-            with open('game_lobby.txt', 'w') as file:
+            with open('/data/game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
         elif len(qua) == 1 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
             mesid = str(mesid.id)
             print(mesid, "MESID")
             game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid  # изменить
-            with open('game_lobby.txt', 'w') as file:
+            with open('/data/game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
             print(mesid)
             print("AOAOIFDOIAOFIOAI")
             play(message)
         else:
             game_lobby = id
-            with open('game_lobby.txt', 'w') as file:
+            with open('/data/game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
     elif id in toft:
         for i in s:
@@ -85,7 +98,7 @@ def game(message):
 
 def play(message):
     print(1)
-    with open('game_lobby.txt', 'r') as file:
+    with open('/data/game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
         print(i.split('.'))
@@ -155,7 +168,7 @@ def callback_mes(callback):
     print(callback.message.chat.id)
     move = str(callback.message.chat.id)
     count = 0
-    with open('game_lobby.txt', 'r') as file:
+    with open('/data/game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
         count += 1
@@ -208,7 +221,7 @@ def callback_mes(callback):
                     print(s[0] == i)
                     s.remove(i)
                     game_lobby = ','.join(s)
-                    with open('game_lobby.txt', 'w') as file:
+                    with open('/data/game_lobby.txt', 'w') as file:
                         file.write(game_lobby)
                     bot.send_message(int(wait), "Победа игрока x")
                     bot.send_message(int(move), "Победа игрока x")
@@ -220,7 +233,7 @@ def callback_mes(callback):
                     r = '.'.join(timered)
                     s[count - 1] = r
                     game_lobby = ','.join(s)
-                    with open('game_lobby.txt', 'w') as file:
+                    with open('/data/game_lobby.txt', 'w') as file:
                         file.write(game_lobby)
                     play(int(wait))
                 # bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
@@ -242,7 +255,7 @@ def callback_mes(callback):
                 r = '.'.join(timered)
                 s[count - 1] = r
                 game_lobby = ','.join(s)
-                with open('game_lobby.txt', 'w') as file:
+                with open('/data/game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
                 play(int(move))
 
@@ -251,6 +264,7 @@ def callback_mes(callback):
 def google(message):
     query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
     bot.register_next_step_handler(query, tests_google)
+
 
 def tests_google(message):
     name = message.text.strip()
@@ -263,16 +277,20 @@ def video(message):
     query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
     bot.register_next_step_handler(query, tests_video)
 
+
 def tests_video(message):
+    print(message)
     name = message.text.strip()
+    print(name)
     results = YoutubeSearch(name).to_dict()
+    print(results)
     for i in range(3):
         bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напиши название города, чтобы узнать погоду.')
+    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напишите /help чтобы узнать вес')
 
 
 @bot.message_handler(commands=['site', 'website'])
@@ -289,18 +307,15 @@ def login(message):
 
 
 @bot.message_handler(commands=['registration'])
-# СДЕЛАТЬ CONTENT_TYPES = TEXT ХЕНДЛЕР ЧТОБЫ ОПРЕДЕЛЯЛ ВСЕ ДРУГИЕ
 def registration(message):
     print(message.text.lower())
     print(message)
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("/data/users.db")
     cur = conn.cursor()
-    # TYPE - ЗОЛОТАЯ ВЕЩЬ
     sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
     if message.text.lower() == "регистрация" or message.text.lower() == '/registration':
         if sos2:
             bot.send_message(message.chat.id, 'Данный аккаунт уже зарегистрирован')
-            # bot.delete_message(message.chat.id, message.message_id)
             bot.clear_step_handler(message)
         else:
             bot.send_message(message.chat.id, f'{message.from_user.username.capitalize()}, чтобы зарегистрироваться'
@@ -312,7 +327,7 @@ def registration(message):
 
 
 def user_name(message):
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect('/data/users.db')
     cur = conn.cursor()
     proxod = True
     global name
@@ -347,7 +362,7 @@ def user_pass(message):
             b = False
     if b:
         bot.send_message(message.chat.id, 'Введите почту для привязки')
-        with open('hesh.txt', 'r') as file:
+        with open('/data/hesh.txt', 'r') as file:
             k = file.read().split(" ")
             heshing = {}
             for i in range(len(k) // 2):
@@ -366,15 +381,17 @@ def user_email(message):
     email = message.text.strip()
     nickname = message.from_user.first_name
     tgid = message.from_user.id
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect('/data/users.db')
     cur = conn.cursor()
     try:
         sos1 = cur.execute('''SELECT * FROM userinfo WHERE email = ?''', (email,)).fetchall()
         if sos1:
+            print(sos1)
             raise Exception()
         mani.send_email(email, 'Registration',
                         f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
                         f' в чате с ботом')
+
         up = mani.pat()
         res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
         for i in up:
@@ -394,10 +411,11 @@ def user_email(message):
         bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
         bot.register_next_step_handler(message, user_email)
         print(2)
-    # образец send_email("akolelow@mail.ru", 'Registration', f'Вот капча для подтверждения регистрации')
+
 
 
 def cap(message):
+    global mistake
     captcha = message.text.strip()
     num = message.message_id
     if captcha != mani.pat():
@@ -405,9 +423,28 @@ def cap(message):
         print(num, 'num')
         print(message.message_id)
         bot.register_next_step_handler(message, cap)
+        mistake += 1
+    if captcha != mani.pat() and mistake == 3:
+        nickname = message.from_user.first_name
+        tgid = message.from_user.id
+        mistake = 0
+        conn = sqlite3.connect('/data/users.db')
+        cur = conn.cursor()
+        mani.send_email(email, 'Registration',
+                        f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
+                        f' в чате с ботом')
+        up = mani.pat()
+        res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
+        for i in up:
+            res += i
+        print(res)
+        cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
+        bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с новой капчи')
+
+
     elif captcha == mani.pat():
         bot.send_message(message.chat.id, 'Почта подтверждена')
-        conn = sqlite3.connect('users.db')
+        conn = sqlite3.connect('/data/users.db')
         cur = conn.cursor()
         nickname = message.from_user.first_name
         tg_id = message.from_user.id
@@ -444,18 +481,18 @@ def get_weather(message):
         bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}. Температура воздуха:'
                               f' {data["main"]["temp"]}°C')
         if word1.lower() == "ясно":
-            image = 'sunny3.png'
+            image = '/data/img/sunny3.png'
         elif word1.lower() == "мало облаков":
-            image = 'obla.png'
+            image = '/data/img/obla.png'
         elif word1.lower() == "облачно":
-            image = 'obl.png'
+            image = '/data/img/obl.png'
         elif word1.lower() == "пасмурные облака":
-            image = 'ty4a.jpg'
+            image = '/data/img/ty4a.jpg'
         elif word1.lower() == "дым":
-            image = 'tyman.jpg'
+            image = '/data/img/tyman.jpg'
         else:
-            image = 'loading-13.gif'
-        file = open('img/' + image, 'rb')
+            image = '/data/img/loading-13.gif'
+        file = open(image, 'rb')
         bot.send_photo(message.chat.id, file)
     else:
         bot.reply_to(message, "Город не найден. Попробуйте снова.")
