@@ -47,11 +47,20 @@ def start(message):
 @bot.message_handler(commands=['help'])
 def qwark(message):
     bot.send_message(message.from_user.id, "Вот вам список команд, которые может выполнять бот \n "
-                                           "/start - Начните общение с ботом \n /help - Узнайте возможности бота \n "
+                                           "/start - Начните общение с ботом \n  "
+                                           "/contacts - аккаунты разработчиков \n"
+                                           "/towns - Укажите любимые города, чтобы легче смотреть погоду \n"
+                                           "/weather - Узнайте погоду в городе \n"
+                                           "/clear - Напиши, чтобы выйти из команды \n"
+                                           "/recepts - Узнайте рецепт для блюда! \n"
+                                           "/addrecepts - Добавьте рецепт своего блюда и поделитесь им с другими пользователями! \n"
+                                           "/leaderboard - Узнайте топ игроков в крестики-нолики  \n"
+                                           "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн и сохранении нужных городов \n"
                                            "/weather - Узнайте погоду в городе \n "
                                            "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн и сохранении нужных городов \n"
                                            "/google - Выводит ссылки на самые популярные по запросу из интернете \n"
                                            "/video - Выводит ссылки на самые популярные видео из YouTube \n"
+                                           "/close - Закрой кнопки \n"
                                            "/game - Напишите и играйте в крестики-нолики!")
 
 
@@ -702,18 +711,24 @@ def answer(message):
                                   f' {data["main"]["temp"]}°C')
             if word1.lower() == "ясно":
                 image = REPL + 'img/sunny3.png'
+                file = open(image, 'rb')
+                bot.send_photo(message.chat.id, file)
             elif word1.lower() == "мало облаков":
                 image = REPL + 'img/obla.png'
+                file = open(image, 'rb')
+                bot.send_photo(message.chat.id, file)
             elif word1.lower() == "облачно":
                 image = REPL + 'img/obl.png'
+                file = open(image, 'rb')
+                bot.send_photo(message.chat.id, file)
             elif word1.lower() == "пасмурные облака":
                 image = REPL + 'img/ty4a.jpg'
+                file = open(image, 'rb')
+                bot.send_photo(message.chat.id, file)
             elif word1.lower() == "дым":
                 image = REPL + 'img/tyman.jpg'
-            else:
-                image = REPL + 'img/loading-13.gif'
-            file = open(image, 'rb')
-            bot.send_photo(message.chat.id, file)
+                file = open(image, 'rb')
+                bot.send_photo(message.chat.id, file)
         else:
             bot.reply_to(message, "Город не найден. Попробуйте снова.")
 
