@@ -1,4 +1,3 @@
-#Удалить /data/ для использования в локальной сети
 import telebot
 from telebot import types
 import pymorphy2
@@ -14,7 +13,7 @@ import smtplib
 from youtube_search import YoutubeSearch
 from googlesearch import search
 
-mistake = 0
+REPL = ""
 bot = telebot.TeleBot("6392696125:AAHyu5ymG-OzjOcX_XbLnqNfe8Mwc762A9k")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
@@ -30,11 +29,16 @@ PASSWORD = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
             'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
             '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$',
             '%', '^', '&', '*', '_']
-with open('/data/hesh.txt', 'r') as file:
+with open(REPL + 'hesh.txt', 'r') as file:
     qq = str(file.read().split(' '))
     hesh = {}
     for i in range(0, len(qq) // 2):
         hesh[qq[i * 2]] = qq[i * 2 + 1]
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напишите /help чтобы узнать вес')
 
 
 @bot.message_handler(commands=['help'])
@@ -57,7 +61,7 @@ def all_messages(message):
 @bot.message_handler(commands=['game'])
 def game(message):
     global mesid
-    with open('/data/game_lobby.txt', 'r') as file:
+    with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
         print(s)
         toft = ','.join(s)
@@ -69,21 +73,21 @@ def game(message):
     if id not in toft:
         if len(qua) == 5:
             game_lobby = ",".join(s) + ',' + id
-            with open('/data/game_lobby.txt', 'w') as file:
+            with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
         elif len(qua) == 1 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
             mesid = str(mesid.id)
             print(mesid, "MESID")
             game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid  # изменить
-            with open('/data/game_lobby.txt', 'w') as file:
+            with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
             print(mesid)
             print("AOAOIFDOIAOFIOAI")
             play(message)
         else:
             game_lobby = id
-            with open('/data/game_lobby.txt', 'w') as file:
+            with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
     elif id in toft:
         for i in s:
@@ -98,7 +102,7 @@ def game(message):
 
 def play(message):
     print(1)
-    with open('/data/game_lobby.txt', 'r') as file:
+    with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
         print(i.split('.'))
@@ -168,7 +172,7 @@ def callback_mes(callback):
     print(callback.message.chat.id)
     move = str(callback.message.chat.id)
     count = 0
-    with open('/data/game_lobby.txt', 'r') as file:
+    with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
         count += 1
@@ -221,7 +225,7 @@ def callback_mes(callback):
                     print(s[0] == i)
                     s.remove(i)
                     game_lobby = ','.join(s)
-                    with open('/data/game_lobby.txt', 'w') as file:
+                    with open(REPL + 'game_lobby.txt', 'w') as file:
                         file.write(game_lobby)
                     bot.send_message(int(wait), "Победа игрока x")
                     bot.send_message(int(move), "Победа игрока x")
@@ -233,7 +237,7 @@ def callback_mes(callback):
                     r = '.'.join(timered)
                     s[count - 1] = r
                     game_lobby = ','.join(s)
-                    with open('/data/game_lobby.txt', 'w') as file:
+                    with open(REPL + 'game_lobby.txt', 'w') as file:
                         file.write(game_lobby)
                     play(int(wait))
                 # bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
@@ -255,7 +259,7 @@ def callback_mes(callback):
                 r = '.'.join(timered)
                 s[count - 1] = r
                 game_lobby = ','.join(s)
-                with open('/data/game_lobby.txt', 'w') as file:
+                with open(REPL + 'game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
                 play(int(move))
 
@@ -288,11 +292,6 @@ def tests_video(message):
         bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напишите /help чтобы узнать вес')
-
-
 @bot.message_handler(commands=['site', 'website'])
 def site(message):
     print(6)
@@ -303,14 +302,29 @@ def site(message):
 
 @bot.message_handler(commands=['login'])
 def login(message):
-    pass
+    print(message.text.lower())
+    print(message)
+    conn = sqlite3.connect(REPL + "users.db")
+    cur = conn.cursor()
+    sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
+    if message.text.lower() == "регистрация" or message.text.lower() == '/registration':
+        if sos2:
+            bot.send_message(message.chat.id, 'Данный аккаунт уже зарегистрирован')
+            bot.clear_step_handler(message)
+        else:
+            bot.send_message(message.chat.id, f'{message.from_user.username.capitalize()}, чтобы зарегистрироваться'
+                                              f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
+                                              f'из латинских букв разного регистра, цифр')
+            bot.register_next_step_handler(message, user_name)
+    else:
+        get_weather(message)
 
 
 @bot.message_handler(commands=['registration'])
 def registration(message):
     print(message.text.lower())
     print(message)
-    conn = sqlite3.connect("/data/users.db")
+    conn = sqlite3.connect(REPL + "users.db")
     cur = conn.cursor()
     sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
     if message.text.lower() == "регистрация" or message.text.lower() == '/registration':
@@ -327,7 +341,7 @@ def registration(message):
 
 
 def user_name(message):
-    conn = sqlite3.connect('/data/users.db')
+    conn = sqlite3.connect(REPL + 'users.db')
     cur = conn.cursor()
     proxod = True
     global name
@@ -362,7 +376,7 @@ def user_pass(message):
             b = False
     if b:
         bot.send_message(message.chat.id, 'Введите почту для привязки')
-        with open('/data/hesh.txt', 'r') as file:
+        with open(REPL + 'hesh.txt', 'r') as file:
             k = file.read().split(" ")
             heshing = {}
             for i in range(len(k) // 2):
@@ -381,7 +395,7 @@ def user_email(message):
     email = message.text.strip()
     nickname = message.from_user.first_name
     tgid = message.from_user.id
-    conn = sqlite3.connect('/data/users.db')
+    conn = sqlite3.connect(REPL + 'users.db')
     cur = conn.cursor()
     try:
         sos1 = cur.execute('''SELECT * FROM userinfo WHERE email = ?''', (email,)).fetchall()
@@ -420,15 +434,10 @@ def cap(message):
     num = message.message_id
     if captcha != mani.pat():
         bot.send_message(message.chat.id, 'Неверная капча. Проверьте вашу почту и введите код с капчи')
-        print(num, 'num')
-        print(message.message_id)
         bot.register_next_step_handler(message, cap)
-        mistake += 1
-    if captcha != mani.pat() and mistake == 3:
         nickname = message.from_user.first_name
         tgid = message.from_user.id
-        mistake = 0
-        conn = sqlite3.connect('/data/users.db')
+        conn = sqlite3.connect(REPL + 'users.db')
         cur = conn.cursor()
         mani.send_email(email, 'Registration',
                         f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
@@ -440,11 +449,9 @@ def cap(message):
         print(res)
         cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
         bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с новой капчи')
-
-
     elif captcha == mani.pat():
         bot.send_message(message.chat.id, 'Почта подтверждена')
-        conn = sqlite3.connect('/data/users.db')
+        conn = sqlite3.connect(REPL + 'users.db')
         cur = conn.cursor()
         nickname = message.from_user.first_name
         tg_id = message.from_user.id
@@ -455,7 +462,6 @@ def cap(message):
         conn.commit()
         conn.close()
         markup = telebot.types.InlineKeyboardMarkup()
-        # markup.add(telebot.types.InlineKeyboardButton('Список пользователей', callback_data='users'))
         bot.send_message(message.chat.id, f'Пользователь {name} зарегистрирован', reply_markup=markup)
 
 
@@ -481,17 +487,17 @@ def get_weather(message):
         bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}. Температура воздуха:'
                               f' {data["main"]["temp"]}°C')
         if word1.lower() == "ясно":
-            image = '/data/img/sunny3.png'
+            image = REPL + 'img/sunny3.png'
         elif word1.lower() == "мало облаков":
-            image = '/data/img/obla.png'
+            image = REPL + 'img/obla.png'
         elif word1.lower() == "облачно":
-            image = '/data/img/obl.png'
+            image = REPL + 'img/obl.png'
         elif word1.lower() == "пасмурные облака":
-            image = '/data/img/ty4a.jpg'
+            image = REPL + 'img/ty4a.jpg'
         elif word1.lower() == "дым":
-            image = '/data/img/tyman.jpg'
+            image = REPL + 'img/tyman.jpg'
         else:
-            image = '/data/img/loading-13.gif'
+            image = REPL + 'img/loading-13.gif'
         file = open(image, 'rb')
         bot.send_photo(message.chat.id, file)
     else:
