@@ -346,6 +346,10 @@ def registration(message):
                                               f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
                                               f'из латинских букв разного регистра, цифр')
             bot.register_next_step_handler(message, user_name)
+    if message.text.strip().lower() == "/clear":
+        bot.send_message(message.chat.id, "Команда отменена")
+        bot.clear_step_handler(message)
+        all_messages(message)
 
 
 def user_name(message):
@@ -370,8 +374,13 @@ def user_name(message):
             bot.send_message(message.chat.id, 'Такой пользователь уже существует. Введите другой логин')
             bot.register_next_step_handler(message, user_name)
     else:
-        bot.send_message(message.chat.id, 'Недопустимое имя. Введите другой логин')
-        bot.register_next_step_handler(message, user_name)
+        if message.text.strip().lower() == "/clear":
+            bot.send_message(message.chat.id, "Команда отменена")
+            bot.clear_step_handler(message)
+            all_messages(message)
+        else:
+            bot.send_message(message.chat.id, 'Недопустимое имя. Введите другой логин')
+            bot.register_next_step_handler(message, user_name)
 
 
 def user_pass(message):
@@ -393,6 +402,10 @@ def user_pass(message):
             for i in password:
                 hesh_password += heshing[i]
         bot.register_next_step_handler(message, user_email)
+    if message.text.strip().lower() == "/clear":
+        bot.send_message(message.chat.id, "Команда отменена")
+        bot.clear_step_handler(message)
+        all_messages(message)
     else:
         bot.send_message(message.chat.id, 'Недопустимый пароль. Введите другой пароль')
         bot.register_next_step_handler(message, user_pass)
@@ -405,82 +418,89 @@ def user_email(message):
     tgid = message.from_user.id
     conn = sqlite3.connect(REPL + 'users.db')
     cur = conn.cursor()
-    try:
-        sos1 = cur.execute('''SELECT * FROM userinfo WHERE email = ?''', (email,)).fetchall()
-        if sos1:
-            print(sos1)
-            raise Exception()
-        mani.send_email(email, 'Registration',
-                        f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
-                        f' в чате с ботом')
+    if message.text.strip().lower() == "/clear":
+        bot.send_message(message.chat.id, "Команда отменена")
+        bot.clear_step_handler(message)
+        all_messages(message)
+    else:
+        try:
+            sos1 = cur.execute('''SELECT * FROM userinfo WHERE email = ?''', (email,)).fetchall()
+            if sos1:
+                print(sos1)
+                raise Exception()
+            mani.send_email(email, 'Registration',
+                            f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
+                            f' в чате с ботом')
 
-        up = mani.pat()
-        res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
-        for i in up:
-            res += i
-        print(res)
-        cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
-        bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с капчи')
-        conn.commit()
-        conn.close()
-        bot.register_next_step_handler(message, cap)
-        print(1)
-    except Exception:  # ошибка с некорректной почтой
-        bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
-        bot.register_next_step_handler(message, user_email)
-        print(3)
-    except smtplib.SMTPRecipientsRefused:
-        bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
-        bot.register_next_step_handler(message, user_email)
-        print(2)
+            up = mani.pat()
+            res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
+            for i in up:
+                res += i
+            print(res)
+            cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
+            bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с капчи')
+            conn.commit()
+            conn.close()
+            bot.register_next_step_handler(message, cap)
+            print(1)
+        except Exception:  # ошибка с некорректной почтой
+            bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
+            bot.register_next_step_handler(message, user_email)
+            print(3)
+        except smtplib.SMTPRecipientsRefused:
+            bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
+            bot.register_next_step_handler(message, user_email)
+            print(2)
 
 
 def cap(message):
     global mistake
     captcha = message.text.strip()
-    num = message.message_id
-    if captcha != mani.pat():
-        bot.send_message(message.chat.id, 'Неверная капча. Проверьте вашу почту и введите код с капчи')
-        bot.register_next_step_handler(message, cap)
-        nickname = message.from_user.first_name
-        tgid = message.from_user.id
-        conn = sqlite3.connect(REPL + 'users.db')
-        cur = conn.cursor()
-        mani.send_email(email, 'Registration',
-                        f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
-                        f' в чате с ботом')
-        up = mani.pat()
-        res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
-        for i in up:
-            res += i
-        print(res)
-        cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
-        bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с новой капчи')
-    elif captcha == mani.pat():
-        bot.send_message(message.chat.id, 'Почта подтверждена')
-        conn = sqlite3.connect(REPL + 'users.db')
-        cur = conn.cursor()
-        nickname = message.from_user.first_name
-        tg_id = message.from_user.id
-        print(nickname)
-        cur.execute("INSERT INTO passwords (login, pass) VALUES ('%s', '%s')" % (name, hesh_password))
-        cur.execute("INSERT INTO userinfo (login, email, nickname, tg_id) VALUES ('%s', '%s', '%s', '%s')" % (
-        name, email, nickname, tg_id))
-        conn.commit()
-        conn.close()
-        markup = telebot.types.InlineKeyboardMarkup()
-        bot.send_message(message.chat.id, f'Пользователь {name} зарегистрирован', reply_markup=markup)
+    if message.text.strip().lower() == "/clear":
+        bot.send_message(message.chat.id, "Команда отменена")
+        bot.clear_step_handler(message)
+        all_messages(message)
+    else:
+        if captcha != mani.pat():
+            bot.send_message(message.chat.id, 'Неверная капча. Проверьте вашу почту и введите код с капчи')
+            bot.register_next_step_handler(message, cap)
+            nickname = message.from_user.first_name
+            tgid = message.from_user.id
+            conn = sqlite3.connect(REPL + 'users.db')
+            cur = conn.cursor()
+            mani.send_email(email, 'Registration',
+                            f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
+                            f' в чате с ботом')
+            up = mani.pat()
+            res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
+            for i in up:
+                res += i
+            print(res)
+            cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
+            bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с новой капчи')
+        elif captcha == mani.pat():
+            bot.send_message(message.chat.id, 'Почта подтверждена')
+            conn = sqlite3.connect(REPL + 'users.db')
+            cur = conn.cursor()
+            nickname = message.from_user.first_name
+            tg_id = message.from_user.id
+            print(nickname)
+            cur.execute("INSERT INTO passwords (login, pass) VALUES ('%s', '%s')" % (name, hesh_password))
+            cur.execute("INSERT INTO userinfo (login, email, nickname, tg_id) VALUES ('%s', '%s', '%s', '%s')" % (
+                name, email, nickname, tg_id))
+            conn.commit()
+            conn.close()
+            markup = telebot.types.InlineKeyboardMarkup()
+            bot.send_message(message.chat.id, f'Пользователь {name} зарегистрирован', reply_markup=markup)
+
 
 @bot.message_handler(commands=['leaderboard'])
 def leaderboard(message):
     conn = sqlite3.connect(REPL + "users.db")
     cur = conn.cursor()
     num = cur.execute('''SELECT * FROM leaderboard ORDER BY wins DESC''').fetchall()
-    print(num)
-    print(num[0][1])
     s = 'Ники игроков: \n'
     for i in range(0, len(num)):
-        print(i)
         s = f'{s} {num[i][1]} \t {num[i][-1]} \n'
     bot.send_message(message.chat.id, s)
 
@@ -513,7 +533,12 @@ def towny(message):
             bot.clear_step_handler(message)
             all_messages(message)
         elif proverb and message.text == "Удалить город" and len(proverb) >= 1:
-            bot.send_message(message.chat.id, 'Напишите город')
+            proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
+            print(len(proverb[-1].split(',')))
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+            for i in proverb[-1].split(','):
+                markup.add(types.InlineKeyboardButton(f'{i}'))
+            bot.send_message(message.chat.id, 'Напишите город', reply_markup=markup)
             bot.register_next_step_handler(message, deleteit)
         elif proverb and message.text == "Удалить город" and len(proverb) < 1:
             bot.send_message(message.chat.id, 'Не найдено городов для удаления')
@@ -561,35 +586,31 @@ def deleteit(message):
     conn = sqlite3.connect(REPL + 'users.db')
     cur = conn.cursor()
     proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split()))
-    for i in proverb[-1].split():
-        pass
+    #markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split()))
+    #for i in proverb[-1].split():
+        #markup.add(types.InlineKeyboardButton(f'{i}'))
     #btn1 = types.InlineKeyboardButton(f'Добавить город')
     #btn2 = types.InlineKeyboardButton(f'Удалить город')
-    markup.add(types.InlineKeyboardButton(f'Добавить город'), types.InlineKeyboardButton(f'Удалить город'))
-    bot.send_message(message.chat.id, f'Выберите город, нажав на кнопку, чтобы удалить его из списка',reply_markup=markup)
+    bot.send_message(message.chat.id, f'Выберите город, нажав на кнопку, чтобы удалить его из списка')
     city = message.text
     s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city.lower()}&appid={API}&units=metric')
-    if s.status_code == 200 and city not in proverb[-1]:
+    if s.status_code == 200 and city in proverb[-1]:
         if proverb[-1]:
             check = proverb[-1].split(",")
-            check.append(city.capitalize())
+            check.remove(city.capitalize())
             print(check)
             print(1)
             proverb[-1] = ",".join(check)
-        elif not proverb[-1]:
-            proverb[-1] = city.capitalize()
-            print(1)
         cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
         cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
         towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
                     (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
         conn.commit()
-        bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
+        bot.send_message(message.chat.id, f'Город {city.capitalize()} удалён')
         bot.clear_step_handler(message)
         all_messages(message)
     else:
-        bot.send_message(message.chat.id, f'Город {city.capitalize()} уже есть в списке')
+        bot.send_message(message.chat.id, f'Город {city.capitalize()} нет в списке')
         bot.clear_step_handler(message)
         all_messages(message)
 
