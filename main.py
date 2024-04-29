@@ -14,7 +14,7 @@ from youtube_search import YoutubeSearch
 from googlesearch import search
 
 REPL = ""
-bot = telebot.TeleBot("6392696125:AAHyu5ymG-OzjOcX_XbLnqNfe8Mwc762A9k")  # yeap
+bot = telebot.TeleBot("6392696125:AAETy96cioNjK3XIMm97Tkh_OPBmohbZRqI")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -58,7 +58,9 @@ def all_messages(message):
 @bot.message_handler(commands=['close'])
 def all_messages(message):
     sq = types.ReplyKeyboardRemove()
-    bot.send_message(message.from_user.id, "Done with Keyboard", reply_markup=sq)
+    msg = bot.send_message(message.from_user.id, "Кнопки закрыты", reply_markup=sq)
+    print(msg)
+    bot.delete_message(message.from_user.id, msg.message_id)
 
 
 @bot.message_handler(commands=['game'])
@@ -469,10 +471,137 @@ def cap(message):
         markup = telebot.types.InlineKeyboardMarkup()
         bot.send_message(message.chat.id, f'Пользователь {name} зарегистрирован', reply_markup=markup)
 
+@bot.message_handler(commands=['leaderboard'])
+def leaderboard(message):
+    conn = sqlite3.connect(REPL + "users.db")
+    cur = conn.cursor()
+    num = cur.execute('''SELECT * FROM leaderboard ORDER BY wins DESC''').fetchall()
+    print(num)
+    print(num[0][1])
+    s = 'Ники игроков: \n'
+    for i in range(0, len(num)):
+        print(i)
+        s = f'{s} {num[i][1]} \t {num[i][-1]} \n'
+    bot.send_message(message.chat.id, s)
+
+
+@bot.message_handler(commands=['towns'])
+def favourite(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    btn1 = types.InlineKeyboardButton(f'Добавить город')
+    btn2 = types.InlineKeyboardButton(f'Удалить город')
+    markup.add(btn1, btn2)
+    bot.send_message(message.chat.id, 'Выберите действие, которое хотите сделать с вашим списком любимых городов', reply_markup=markup)
+    bot.register_next_step_handler(message, towny)
+
+
+def towny(message):
+    all_messages(message)
+    tgid = message.from_user.id
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    if cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone():
+        proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone()
+        if proverb and message.text == "Добавить город":
+            bot.send_message(message.chat.id, 'Напишите город')
+            bot.register_next_step_handler(message, addit)
+        elif message.text == "Добавить город" and len(proverb) < 3:
+            bot.send_message(message.chat.id, 'Напишите город')
+            bot.register_next_step_handler(message, addit)
+        elif message.text == "Добавить город" and len(proverb) >= 3:
+            bot.send_message(message.chat.id, 'Достигнут лимит городов(3)')
+            bot.clear_step_handler(message)
+            all_messages(message)
+        elif proverb and message.text == "Удалить город" and len(proverb) >= 1:
+            bot.send_message(message.chat.id, 'Напишите город')
+            bot.register_next_step_handler(message, deleteit)
+        elif proverb and message.text == "Удалить город" and len(proverb) < 1:
+            bot.send_message(message.chat.id, 'Не найдено городов для удаления')
+            bot.clear_step_handler(message)
+            all_messages(message)
+    else:
+        bot.send_message(message.chat.id, 'Вы не зарегистрированы. Данная команда разрешена только зарегистрированным пользователям')
+        bot.clear_step_handler(message)
+        all_messages(message)
+
+
+def addit(message):
+    tgid = message.from_user.id
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    city = message.text
+    s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city.lower()}&appid={API}&units=metric')
+    proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
+    if s.status_code == 200 and city not in proverb[-1]:
+        if proverb[-1]:
+            check = proverb[-1].split(",")
+            check.append(city.capitalize())
+            print(check)
+            print(1)
+            proverb[-1] = ",".join(check)
+        elif not proverb[-1]:
+            proverb[-1] = city.capitalize()
+            print(1)
+        cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
+        cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
+        towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
+                    (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
+        conn.commit()
+        bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
+        bot.clear_step_handler(message)
+        all_messages(message)
+    else:
+        bot.send_message(message.chat.id, f'Город {city.capitalize()} уже есть в списке')
+        bot.clear_step_handler(message)
+        all_messages(message)
+
+
+def deleteit(message):
+    tgid = message.from_user.id
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split()))
+    for i in proverb[-1].split():
+        pass
+    #btn1 = types.InlineKeyboardButton(f'Добавить город')
+    #btn2 = types.InlineKeyboardButton(f'Удалить город')
+    markup.add(types.InlineKeyboardButton(f'Добавить город'), types.InlineKeyboardButton(f'Удалить город'))
+    bot.send_message(message.chat.id, f'Выберите город, нажав на кнопку, чтобы удалить его из списка',reply_markup=markup)
+    city = message.text
+    s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city.lower()}&appid={API}&units=metric')
+    if s.status_code == 200 and city not in proverb[-1]:
+        if proverb[-1]:
+            check = proverb[-1].split(",")
+            check.append(city.capitalize())
+            print(check)
+            print(1)
+            proverb[-1] = ",".join(check)
+        elif not proverb[-1]:
+            proverb[-1] = city.capitalize()
+            print(1)
+        cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
+        cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
+        towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
+                    (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
+        conn.commit()
+        bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
+        bot.clear_step_handler(message)
+        all_messages(message)
+    else:
+        bot.send_message(message.chat.id, f'Город {city.capitalize()} уже есть в списке')
+        bot.clear_step_handler(message)
+        all_messages(message)
+
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
-    bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду')
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    btn1 = types.InlineKeyboardButton(f'Москва')
+    markup.add(btn1)
+    #btn2 = types.InlineKeyboardButton(f'{emoji[1]}')
+    #btn3 = types.InlineKeyboardButton(f'{emoji[2]}')
+    bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду', reply_markup=markup)
     bot.register_next_step_handler(message, answer)
 
 
