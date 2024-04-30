@@ -9,18 +9,19 @@ import json
 import requests
 import pole
 import mani
+#import googlesearch  библиотека нужна для поиска, но работает в локальной сети, хост ее не воспринимает
 import smtplib
 from youtube_search import YoutubeSearch
-from googlesearch import search
 
-REPL = ""
+
+REPL = "/data/"    # для использования в локальной сети уберите /data/, для хоста используйте /data/
 bot = telebot.TeleBot("6392696125:AAETy96cioNjK3XIMm97Tkh_OPBmohbZRqI")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
         'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
         'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
+        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1pip install googlesearch-python', '2', '3',
         '4', '5', '6', '7', '8', '9', '0']
 ENGLISH = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -304,21 +305,19 @@ def callback_mes(callback):
                 play(int(move))
 
 
-@bot.message_handler(commands=['google'])
-def google(message):
-    query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
-    bot.register_next_step_handler(query, tests_google)
-
-
-def tests_google(message):
-    if message.text.strip().lower() == "/clear":
-        bot.send_message(message.chat.id, "Команда отменена")
-        bot.clear_step_handler(message)
-        all_messages(message)
-    else:
-        name = message.text.strip()
-        for i in search(name, tld='co.in', lang='russian', stop=3):
-            bot.send_message(message.chat.id, i)
+#@bot.message_handler(commands=['google'])
+#def google(message):
+#   query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
+#   bot.register_next_step_handler(query, tests_google)
+#def tests_google(message):
+#    if message.text.strip().lower() == "/clear":
+#        bot.send_message(message.chat.id, "Команда отменена")
+#        bot.clear_step_handler(message)                            ************Код работает в локальной сети********
+#        all_messages(message)
+#    else:
+#        name = message.text.strip()
+#        for i in googlesearch.search(name, lang='russian', num_results=2):
+#            bot.send_message(message.chat.id, i)
 
 
 @bot.message_handler(commands=['video'])
@@ -333,11 +332,8 @@ def tests_video(message):
         bot.clear_step_handler(message)
         all_messages(message)
     else:
-        print(message)
         name = message.text.strip()
-        print(name)
         results = YoutubeSearch(name).to_dict()
-        print(results)
         for i in range(3):
             bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
@@ -656,10 +652,12 @@ def deleteit(message):
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
+    print("start weather")
     if message.text.strip().lower() == "/clear":
         bot.send_message(message.chat.id, "Команда отменена")
         bot.clear_step_handler(message)
         all_messages(message)
+        print("rwfgrgrgrwggrfwrgwgwrgwgrwrgwrgwrgwrgwrgwrgwrgwgrwgwgwgwgwgwrgwrgwrgwrgwgwgwgr\nwrgrwggrgrwgrgwgrwwrg")
     else:
         conn = sqlite3.connect(REPL + "users.db")
         cur = conn.cursor()
