@@ -26,7 +26,6 @@ def send_email(to_addr, subject, text):
     part_file.add_header('Content-Disposition', 'attachment; filename="{}"; size={}'.format(basename, filesize))
     encoders.encode_base64(part_file)
 
-
     msg = MIMEMultipart()
     msg['From'] = passss.login
     msg['To'] = to_addr
