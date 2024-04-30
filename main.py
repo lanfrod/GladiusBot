@@ -41,7 +41,7 @@ with open(REPL + 'hesh.txt', 'r') as file:
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напишите /help чтобы узнать вес')
+    bot.send_message(message.chat.id, 'Привет, рад тебя видеть! Напишите /help чтобы узнать больше команд')
 
 
 @bot.message_handler(commands=['help'])
