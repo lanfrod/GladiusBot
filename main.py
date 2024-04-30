@@ -9,12 +9,11 @@ import json
 import requests
 import pole
 import mani
-#import googlesearch  библиотека нужна для поиска, но работает в локальной сети, хост ее не воспринимает
+# import googlesearch  библиотека нужна для поиска, но работает в локальной сети, хост ее не воспринимает
 import smtplib
 from youtube_search import YoutubeSearch
 
-
-REPL = "/data/"    # для использования в локальной сети уберите /data/, для хоста используйте /data/
+REPL = ""  # для использования в локальной сети уберите /data/, для хоста используйте /data/
 bot = telebot.TeleBot("6392696125:AAETy96cioNjK3XIMm97Tkh_OPBmohbZRqI")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
@@ -24,8 +23,8 @@ NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1pip install googlesearch-python', '2', '3',
         '4', '5', '6', '7', '8', '9', '0']
 ENGLISH = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-        'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-        'w', 'x', 'y', 'z']
+           'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+           'w', 'x', 'y', 'z']
 PASSWORD = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
             'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
             'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
@@ -54,11 +53,14 @@ def qwark(message):
                                            "/weather - Узнайте погоду в городе \n"
                                            "/clear - Напиши, чтобы выйти из команды \n"
                                            "/recepts - Узнайте рецепт для блюда! \n"
-                                           "/addrecepts - Добавьте рецепт своего блюда и поделитесь им с другими пользователями! \n"
+                                           "/addrecepts - Добавьте рецепт своего блюда и поделитесь"
+                                           " им с другими пользователями! \n"
                                            "/leaderboard - Узнайте топ игроков в крестики-нолики  \n"
-                                           "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн и сохранении нужных городов \n"
+                                           "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн"
+                                           " и сохранении нужных городов \n"
                                            "/weather - Узнайте погоду в городе \n "
-                                           "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн и сохранении нужных городов \n"
+                                           "/registration - Зарегистрируйтесь для игры в крестики нолики онлайн "
+                                           "и сохранении нужных городов \n"
                                            "/google - Выводит ссылки на самые популярные по запросу из интернете \n"
                                            "/video - Выводит ссылки на самые популярные видео из YouTube \n"
                                            "/close - Закрой кнопки \n"
@@ -69,7 +71,6 @@ def qwark(message):
 def all_messages(message):
     sq = types.ReplyKeyboardRemove()
     msg = bot.send_message(message.from_user.id, "Кнопки закрыты", reply_markup=sq)
-    print(msg)
     bot.delete_message(message.from_user.id, msg.message_id)
 
 
@@ -78,12 +79,9 @@ def game(message):
     global mesid
     with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
-        print(s)
         toft = ','.join(s)
     qua = s[-1].split('.')
     id = str(message.from_user.id)
-    print(message, "MESSAGE")
-    print(toft)
     ro = False
     if id not in toft:
         if len(qua) == 5:
@@ -93,12 +91,9 @@ def game(message):
         elif len(qua) == 1 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
             mesid = str(mesid.id)
-            print(mesid, "MESID")
-            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid  # изменить
+            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid
             with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
-            print(mesid)
-            print("AOAOIFDOIAOFIOAI")
             play(message)
         else:
             game_lobby = id
@@ -106,7 +101,6 @@ def game(message):
                 file.write(game_lobby)
     elif id in toft:
         for i in s:
-            print(i)
             if (id in s) and int(i.split(".")[2]) > 1:
                 ro = True
         if ro:
@@ -116,11 +110,9 @@ def game(message):
 
 
 def play(message):
-    print(1)
     with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
-        print(i.split('.'))
         player1, player2, round_number, bo, mao = i.split('.')
         markup = types.InlineKeyboardMarkup()
         emoji = []
@@ -159,12 +151,10 @@ def play(message):
                 bot.send_message(int(player2), "Вы - нолик. Выберите поле для хода.", reply_markup=markup)
             else:
                 bot.send_message(int(player2), "Выберите поле для хода.", reply_markup=markup)
-        # mesid += 2
 
 
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_mes(callback):
-    print(2)
     t = 0
     if callback.data == 'left_top':
         t = 1
@@ -184,18 +174,14 @@ def callback_mes(callback):
         t = 8
     elif callback.data == 'right_bot':
         t = 9
-    print(callback.message.chat.id)
     move = str(callback.message.chat.id)
     count = 0
     with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
     for i in s:
         count += 1
-        print(s)
         if move in i:
-            print(move)
             li = i.split(".")
-            print(li)
             wait = ""
             pol = li[3].split("/")
             if pol[t - 1] == "?":
@@ -211,11 +197,9 @@ def callback_mes(callback):
                 bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 78 # 82
                 if int(li[2]) == 1:
                     bot.delete_message(int(wait), int(li[4]))  # 73
-                    # li[4] = str(int(li[4]) + 1) # 76
                 elif int(li[2]) != 1:
                     bot.delete_message(int(wait), int(li[4]))  # 76
                     bot.delete_message(int(move), int(li[4]) + 3)  # 79
-                    # li[4] = str(int(li[4]) + 2)
                 if (pol[0] == "o" and pol[2] == "o" and pol[4] == "o" or
                         pol[6] == "o" and pol[8] == "o" and pol[10] == "o" or
                         pol[12] == "o" and pol[14] == "o" and pol[16] == "o" or
@@ -232,14 +216,17 @@ def callback_mes(callback):
                     bot.send_message(int(move), "Победа игрока о")
                     conn = sqlite3.connect(REPL + "users.db")
                     cur = conn.cursor()
-                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (int(move),)).fetchone()
+                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                                       (int(move),)).fetchone()
                     if tabl:
-                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''', (tabl[1],)).fetchone()
-                        print(ss)
+                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''',
+                                         (tabl[1],)).fetchone()
                         if not ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], 1))
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                        (tabl[1], 1))
                         if ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], ss[2] + 1))
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                        (tabl[1], ss[2] + 1))
                         conn.commit()
                         conn.close()
                 elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
@@ -250,8 +237,6 @@ def callback_mes(callback):
                       pol[4] == "x" and pol[10] == "x" and pol[16] == "x" or
                       pol[0] == "x" and pol[8] == "x" and pol[16] == "x" or
                       pol[12] == "x" and pol[8] == "x" and pol[4] == "x"):
-                    print(s[0], i)
-                    print(s[0] == i)
                     s.remove(i)
                     game_lobby = ','.join(s)
                     with open(REPL + 'game_lobby.txt', 'w') as file:
@@ -260,16 +245,22 @@ def callback_mes(callback):
                     bot.send_message(int(move), "Победа игрока x")
                     conn = sqlite3.connect(REPL + "users.db")
                     cur = conn.cursor()
-                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (int(move),)).fetchone()
+                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                                       (int(move),)).fetchone()
                     if tabl:
-                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''', (tabl[1],)).fetchone()
-                        print(ss, "ss")
+                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''',
+                                         (tabl[1],)).fetchone()
                         if not ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], 1))
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                        (tabl[1], 1))
                         if ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''', (tabl[1], ss[2] + 1))
+                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                        (tabl[1], ss[2] + 1))
                         conn.commit()
                         conn.close()
+                elif int(li[2]) == 9:
+                    bot.send_message(int(wait), "ничья")
+                    bot.send_message(int(move), "ничья")
                 else:
                     qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
                     mesid = qu.id
@@ -281,7 +272,6 @@ def callback_mes(callback):
                     with open(REPL + 'game_lobby.txt', 'w') as file:
                         file.write(game_lobby)
                     play(int(wait))
-                # bot.edit_message_text('Edit text', callback.message.chat.id, callback.message.message_id)
             else:
                 if li[0] == move:
                     wait = li[1]
@@ -296,7 +286,6 @@ def callback_mes(callback):
                 bot.delete_message(int(move), int(li[4]) + 3)  # 75 # 82
                 pol = "/".join(pol)
                 timered = [li[0], li[1], str(int(li[2])), pol, str(mesid)]
-                print(str(int(li[2])))
                 r = '.'.join(timered)
                 s[count - 1] = r
                 game_lobby = ','.join(s)
@@ -305,11 +294,11 @@ def callback_mes(callback):
                 play(int(move))
 
 
-#@bot.message_handler(commands=['google'])
-#def google(message):
+# @bot.message_handler(commands=['google'])
+# def google(message):
 #   query = bot.send_message(message.chat.id, "Напишите что вы хотите узнать")
 #   bot.register_next_step_handler(query, tests_google)
-#def tests_google(message):
+# def tests_google(message):
 #    if message.text.strip().lower() == "/clear":
 #        bot.send_message(message.chat.id, "Команда отменена")
 #        bot.clear_step_handler(message)                            ************Код работает в локальной сети********
@@ -340,7 +329,6 @@ def tests_video(message):
 
 @bot.message_handler(commands=['contacts'])
 def site(message):
-    print(6)
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('lanfrod', url='https://vk.com/lanfrod'))
     markup.add(types.InlineKeyboardButton('intestine1', url='https://vk.com/intestine1'))
@@ -351,14 +339,17 @@ def site(message):
 def registration(message):
     conn = sqlite3.connect(REPL + "users.db")
     cur = conn.cursor()
-    sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (message.from_user.id,)).fetchone()
+    sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                       (message.from_user.id,)).fetchone()
     if message.text.lower() == '/registration':
         if sos2:
             bot.send_message(message.chat.id, 'Данный аккаунт уже зарегистрирован')
             bot.clear_step_handler(message)
         else:
-            bot.send_message(message.chat.id, f'{message.from_user.username.capitalize()}, чтобы зарегистрироваться'
-                                              f' напиши желаемый login. Он будет использован как никнейм. Ник может состоять '
+            bot.send_message(message.chat.id, f'{message.from_user.username.capitalize()}, '
+                                              f'чтобы зарегистрироваться'
+                                              f' напиши желаемый login. Он будет использован '
+                                              f'как никнейм. Ник может состоять '
                                               f'из латинских букв разного регистра, цифр')
             bot.register_next_step_handler(message, user_name)
     if message.text.strip().lower() == "/clear":
@@ -378,7 +369,6 @@ def user_name(message):
             proxod = False
     if proxod:
         proverb = cur.execute('''SELECT * FROM passwords WHERE login = ?''', (name,)).fetchall()
-        print(proverb)
         conn.close()
         if not proverb:
             bot.send_message(message.chat.id,
@@ -441,7 +431,6 @@ def user_email(message):
         try:
             sos1 = cur.execute('''SELECT * FROM userinfo WHERE email = ?''', (email,)).fetchall()
             if sos1:
-                print(sos1)
                 raise Exception()
             mani.send_email(email, 'Registration',
                             f'{nickname}, это капча для подтверждения регистрации. Введите код с капчи'
@@ -451,21 +440,18 @@ def user_email(message):
             res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
             for i in up:
                 res += i
-            print(res)
             cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
             bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с капчи')
             conn.commit()
             conn.close()
             bot.register_next_step_handler(message, cap)
-            print(1)
         except Exception:  # ошибка с некорректной почтой
             bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
             bot.register_next_step_handler(message, user_email)
-            print(3)
+
         except smtplib.SMTPRecipientsRefused:
             bot.send_message(message.chat.id, 'Неправильная почта. Введите другую почту ещё раз')
             bot.register_next_step_handler(message, user_email)
-            print(2)
 
 
 def cap(message):
@@ -490,7 +476,6 @@ def cap(message):
             res = ''  # капча длинная(наслаивается вероятно), сделать кнопку отмены/выхода из действия
             for i in up:
                 res += i
-            print(res)
             cur.execute('''INSERT INTO captchatab (nickname, captcha) VALUES (?, ?)''', (tgid, res,))
             bot.send_message(message.chat.id, 'Проверьте вашу почту и введите код с новой капчи')
         elif captcha == mani.pat():
@@ -499,7 +484,6 @@ def cap(message):
             cur = conn.cursor()
             nickname = message.from_user.first_name
             tg_id = message.from_user.id
-            print(nickname)
             cur.execute("INSERT INTO passwords (login, pass) VALUES ('%s', '%s')" % (name, hesh_password))
             cur.execute("INSERT INTO userinfo (login, email, nickname, tg_id) VALUES ('%s', '%s', '%s', '%s')" % (
                 name, email, nickname, tg_id))
@@ -531,7 +515,9 @@ def favourite(message):
         btn1 = types.InlineKeyboardButton(f'Добавить город')
         btn2 = types.InlineKeyboardButton(f'Удалить город')
         markup.add(btn1, btn2)
-        bot.send_message(message.chat.id, 'Выберите действие, которое хотите сделать с вашим списком любимых городов', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Выберите действие, которое хотите сделать '
+                                          'с вашим списком любимых городов',
+                         reply_markup=markup)
         bot.register_next_step_handler(message, towny)
 
 
@@ -546,26 +532,22 @@ def towny(message):
         conn = sqlite3.connect(REPL + 'users.db')
         cur = conn.cursor()
         if cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone():
-            proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone()
-            print(proverb)
-            print(len(proverb[0].split(",")))
+            proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''',
+                                  (tgid,)).fetchone()
             if not proverb:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-                print(1)
+
             elif message.text == "Добавить город" and len(proverb[0].split(",")) < 3:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-                print(2)
             elif message.text == "Добавить город" and len(proverb[0].split(",")) >= 3:
                 bot.send_message(message.chat.id, 'Достигнут лимит городов(3)')
                 bot.clear_step_handler(message)
                 all_messages(message)
-                print(3)
             elif proverb and message.text == "Удалить город" and len(proverb) >= 1 and 0 not in proverb:
-                print(proverb)
-                proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
-                print(len(proverb[-1].split(',')))
+                proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                                           (tgid,)).fetchone())
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
                 for i in proverb[-1].split(','):
                     markup.add(types.InlineKeyboardButton(f'{i}'))
@@ -580,7 +562,9 @@ def towny(message):
                 bot.clear_step_handler(message)
                 all_messages(message)
         else:
-            bot.send_message(message.chat.id, 'Вы не зарегистрированы. Данная команда разрешена только зарегистрированным пользователям')
+            bot.send_message(message.chat.id,
+                             'Вы не зарегистрированы. Данная команда разрешена только '
+                             'зарегистрированным пользователям')
             bot.clear_step_handler(message)
             all_messages(message)
 
@@ -601,16 +585,13 @@ def addit(message):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.append(city.capitalize())
-                print(check)
-                print(1)
                 proverb[-1] = ",".join(check)
             elif not proverb[-1]:
                 proverb[-1] = city.capitalize()
-                print(1)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
             cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
         towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
-                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
+                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1],))
             conn.commit()
             bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
             bot.clear_step_handler(message)
@@ -642,13 +623,11 @@ def deleteit(message):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.remove(city.capitalize())
-                print(check)
-                print(1)
                 proverb[-1] = ",".join(check)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
             cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
         towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
-                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
+                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1],))
             conn.commit()
             bot.send_message(message.chat.id, f'Город {city.capitalize()} удалён')
             bot.clear_step_handler(message)
@@ -657,27 +636,25 @@ def deleteit(message):
             bot.send_message(message.chat.id, f'Город {city.capitalize()} нет в списке')
             bot.clear_step_handler(message)
             all_messages(message)
-                
+
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
-    print("start weather")
     if message.text.strip().lower() == "/clear":
         bot.send_message(message.chat.id, "Команда отменена")
         bot.clear_step_handler(message)
         all_messages(message)
-        print("rwfgrgrgrwggrfwrgwgwrgwgrwrgwrgwrgwrgwrgwrgwrgwgrwgwgwgwgwgwrgwrgwrgwrgwgwgwgr\nwrgrwggrgrwgrgwgrwwrg")
     else:
         conn = sqlite3.connect(REPL + "users.db")
         cur = conn.cursor()
         tgid = message.from_user.id
         proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
-        print(proverb)
         if len(proverb) >= 1 and proverb[-1] != 0:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split()))
             for i in proverb[-1].split():
                 markup.add(types.InlineKeyboardButton(f'{i}'))
-            bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду', reply_markup=markup)
+            bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду',
+                             reply_markup=markup)
             bot.register_next_step_handler(message, answer)
         else:
             bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду')
@@ -703,18 +680,14 @@ def answer(message):
         s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
         if s.status_code == 200:
             data = json.loads(s.text)
-            print(city)
-            print(data)
             if data["weather"][0]["description"] == "weather condition":
                 word1 = "мало облаков"
-                print(word1)
             elif data["weather"][0]["description"] == "overcast clouds":
                 word1 = "пасмурные облака"
             else:
                 word1 = Translator(from_lang="english", to_lang="russian").translate(data["weather"][0]["description"])
-            # s2 = morph.parse(word1)[1].inflect({"ADJF"}).inflect({"femn"})
-            # print(morph.parse(word1)[1])
-            bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}. Температура воздуха:'
+            bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}.'
+                                  f' Температура воздуха:'
                                   f' {data["main"]["temp"]}°C')
             if word1.lower() == "ясно":
                 image = REPL + 'img/sunny3.png'
