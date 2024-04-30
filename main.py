@@ -547,16 +547,21 @@ def towny(message):
         cur = conn.cursor()
         if cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone():
             proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone()
-            if proverb and message.text == "Добавить город":
+            print(proverb)
+            print(len(proverb[0].split(",")))
+            if not proverb:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-            elif message.text == "Добавить город" and len(proverb) < 3:
+                print(1)
+            elif message.text == "Добавить город" and len(proverb[0].split(",")) < 3:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-            elif message.text == "Добавить город" and len(proverb) >= 3:
+                print(2)
+            elif message.text == "Добавить город" and len(proverb[0].split(",")) >= 3:
                 bot.send_message(message.chat.id, 'Достигнут лимит городов(3)')
                 bot.clear_step_handler(message)
                 all_messages(message)
+                print(3)
             elif proverb and message.text == "Удалить город" and len(proverb) >= 1 and 0 not in proverb:
                 print(proverb)
                 proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
@@ -592,7 +597,7 @@ def addit(message):
         city = message.text
         s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city.lower()}&appid={API}&units=metric')
         proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
-        if s.status_code == 200 and city not in proverb[-1]:
+        if s.status_code == 200 and (city not in str(proverb[-1])):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.append(city.capitalize())
@@ -610,8 +615,12 @@ def addit(message):
             bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
             bot.clear_step_handler(message)
             all_messages(message)
-        else:
+        elif city in str(proverb[-1]):
             bot.send_message(message.chat.id, f'Город {city.capitalize()} уже есть в списке')
+            bot.clear_step_handler(message)
+            all_messages(message)
+        elif s.status_code != 200:
+            bot.send_message(message.chat.id, f'Город {city.capitalize()} не существует')
             bot.clear_step_handler(message)
             all_messages(message)
 
@@ -648,7 +657,7 @@ def deleteit(message):
             bot.send_message(message.chat.id, f'Город {city.capitalize()} нет в списке')
             bot.clear_step_handler(message)
             all_messages(message)
-
+                
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
