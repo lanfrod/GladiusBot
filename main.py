@@ -653,12 +653,12 @@ def get_weather(message):
         cur = conn.cursor()
         tgid = message.from_user.id
         proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
+        print(proverb)
         if len(proverb) >= 1 and proverb[-1] != 0:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split()))
             for i in proverb[-1].split():
                 markup.add(types.InlineKeyboardButton(f'{i}'))
-            bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду',
-                             reply_markup=markup)
+            bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду', reply_markup=markup)
             bot.register_next_step_handler(message, answer)
         else:
             bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду')
@@ -684,14 +684,18 @@ def answer(message):
         s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
         if s.status_code == 200:
             data = json.loads(s.text)
+            print(city)
+            print(data)
             if data["weather"][0]["description"] == "weather condition":
                 word1 = "мало облаков"
+                print(word1)
             elif data["weather"][0]["description"] == "overcast clouds":
                 word1 = "пасмурные облака"
             else:
                 word1 = Translator(from_lang="english", to_lang="russian").translate(data["weather"][0]["description"])
-            bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}.'
-                                  f' Температура воздуха:'
+            # s2 = morph.parse(word1)[1].inflect({"ADJF"}).inflect({"femn"})
+            # print(morph.parse(word1)[1])
+            bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}. Температура воздуха:'
                                   f' {data["main"]["temp"]}°C')
             if word1.lower() == "ясно":
                 image = REPL + 'img/sunny3.png'
@@ -715,6 +719,5 @@ def answer(message):
                 bot.send_photo(message.chat.id, file)
         else:
             bot.reply_to(message, "Город не найден. Попробуйте снова.")
-
 
 bot.polling(none_stop=True)
