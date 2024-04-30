@@ -531,25 +531,18 @@ def towny(message):
         cur = conn.cursor()
         if cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone():
             proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone()
-            print(proverb)
-            print(len(proverb[0].split(",")))
             if not proverb:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-                print(1)
             elif message.text == "Добавить город" and len(proverb[0].split(",")) < 3:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-                print(2)
             elif message.text == "Добавить город" and len(proverb[0].split(",")) >= 3:
                 bot.send_message(message.chat.id, 'Достигнут лимит городов(3)')
                 bot.clear_step_handler(message)
                 all_messages(message)
-                print(3)
             elif proverb and message.text == "Удалить город" and len(proverb) >= 1 and 0 not in proverb:
-                print(proverb)
                 proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
-                print(len(proverb[-1].split(',')))
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
                 for i in proverb[-1].split(','):
                     markup.add(types.InlineKeyboardButton(f'{i}'))
@@ -585,12 +578,9 @@ def addit(message):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.append(city.capitalize())
-                print(check)
-                print(1)
                 proverb[-1] = ",".join(check)
             elif not proverb[-1]:
                 proverb[-1] = city.capitalize()
-                print(1)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
             cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
         towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
@@ -626,8 +616,6 @@ def deleteit(message):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.remove(city.capitalize())
-                print(check)
-                print(1)
                 proverb[-1] = ",".join(check)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
             cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
@@ -653,10 +641,9 @@ def get_weather(message):
         cur = conn.cursor()
         tgid = message.from_user.id
         proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
-        print(proverb)
         if len(proverb) >= 1 and proverb[-1] != 0:
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split()))
-            for i in proverb[-1].split():
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split(",")))
+            for i in proverb[-1].split(","):
                 markup.add(types.InlineKeyboardButton(f'{i}'))
             bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду', reply_markup=markup)
             bot.register_next_step_handler(message, answer)
@@ -684,17 +671,12 @@ def answer(message):
         s = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
         if s.status_code == 200:
             data = json.loads(s.text)
-            print(city)
-            print(data)
             if data["weather"][0]["description"] == "weather condition":
                 word1 = "мало облаков"
-                print(word1)
             elif data["weather"][0]["description"] == "overcast clouds":
                 word1 = "пасмурные облака"
             else:
                 word1 = Translator(from_lang="english", to_lang="russian").translate(data["weather"][0]["description"])
-            # s2 = morph.parse(word1)[1].inflect({"ADJF"}).inflect({"femn"})
-            # print(morph.parse(word1)[1])
             bot.reply_to(message, f'Сейчас погода в {city_parse.capitalize()}: {word1.lower()}. Температура воздуха:'
                                   f' {data["main"]["temp"]}°C')
             if word1.lower() == "ясно":
