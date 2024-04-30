@@ -515,9 +515,7 @@ def favourite(message):
         btn1 = types.InlineKeyboardButton(f'Добавить город')
         btn2 = types.InlineKeyboardButton(f'Удалить город')
         markup.add(btn1, btn2)
-        bot.send_message(message.chat.id, 'Выберите действие, которое хотите сделать '
-                                          'с вашим списком любимых городов',
-                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Выберите действие, которое хотите сделать с вашим списком любимых городов', reply_markup=markup)
         bot.register_next_step_handler(message, towny)
 
 
@@ -532,22 +530,26 @@ def towny(message):
         conn = sqlite3.connect(REPL + 'users.db')
         cur = conn.cursor()
         if cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone():
-            proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''',
-                                  (tgid,)).fetchone()
+            proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone()
+            print(proverb)
+            print(len(proverb[0].split(",")))
             if not proverb:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
-
+                print(1)
             elif message.text == "Добавить город" and len(proverb[0].split(",")) < 3:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
+                print(2)
             elif message.text == "Добавить город" and len(proverb[0].split(",")) >= 3:
                 bot.send_message(message.chat.id, 'Достигнут лимит городов(3)')
                 bot.clear_step_handler(message)
                 all_messages(message)
+                print(3)
             elif proverb and message.text == "Удалить город" and len(proverb) >= 1 and 0 not in proverb:
-                proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
-                                           (tgid,)).fetchone())
+                print(proverb)
+                proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
+                print(len(proverb[-1].split(',')))
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
                 for i in proverb[-1].split(','):
                     markup.add(types.InlineKeyboardButton(f'{i}'))
@@ -562,9 +564,7 @@ def towny(message):
                 bot.clear_step_handler(message)
                 all_messages(message)
         else:
-            bot.send_message(message.chat.id,
-                             'Вы не зарегистрированы. Данная команда разрешена только '
-                             'зарегистрированным пользователям')
+            bot.send_message(message.chat.id, 'Вы не зарегистрированы. Данная команда разрешена только зарегистрированным пользователям')
             bot.clear_step_handler(message)
             all_messages(message)
 
@@ -585,13 +585,16 @@ def addit(message):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.append(city.capitalize())
+                print(check)
+                print(1)
                 proverb[-1] = ",".join(check)
             elif not proverb[-1]:
                 proverb[-1] = city.capitalize()
+                print(1)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
             cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
         towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
-                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1],))
+                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
             conn.commit()
             bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
             bot.clear_step_handler(message)
@@ -623,11 +626,13 @@ def deleteit(message):
             if proverb[-1]:
                 check = proverb[-1].split(",")
                 check.remove(city.capitalize())
+                print(check)
+                print(1)
                 proverb[-1] = ",".join(check)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
             cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
         towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
-                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1],))
+                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
             conn.commit()
             bot.send_message(message.chat.id, f'Город {city.capitalize()} удалён')
             bot.clear_step_handler(message)
@@ -636,7 +641,6 @@ def deleteit(message):
             bot.send_message(message.chat.id, f'Город {city.capitalize()} нет в списке')
             bot.clear_step_handler(message)
             all_messages(message)
-
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
