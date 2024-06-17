@@ -16,11 +16,13 @@ from youtube_search import YoutubeSearch
 REPL = ""  # для использования в локальной сети уберите /data/, для хоста используйте /data/
 bot = telebot.TeleBot("6392696125:AAETy96cioNjK3XIMm97Tkh_OPBmohbZRqI")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
+EMOJIES = ['el1', 'CAACAgIAAxkBAAEGF01maayu6IWQ6hYYFrB7hM745oEjYAACLRAAAgyB4UhJJf7PO5VDsjUE', 'el1', 'el1', 'el1', 'el1'
+]
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
         'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
         'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1pip install googlesearch-python', '2', '3',
+        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '0']
 ENGLISH = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
            'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -81,22 +83,27 @@ def game(message):
         s = file.read().split(',')
         toft = ','.join(s)
     qua = s[-1].split('.')
+    print(qua)
     id = str(message.from_user.id)
     ro = False
     if id not in toft:
-        if len(qua) == 5:
-            game_lobby = ",".join(s) + ',' + id
+        if len(qua) == 6:
+            mesid = bot.send_message(message.chat.id, "Вы зашли в очередь. Ожидайте...")
+            game_lobby = ",".join(s) + ',' + id + '.' + str(mesid.id)
             with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
-        elif len(qua) == 1 and qua[-1] != "":
+        elif len(qua) == 2 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
-            mesid = str(mesid.id)
-            game_lobby = ','.join(s) + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + mesid
+            idn1 = s[-1].split(".")
+            bot.delete_message(idn1[0], idn1[1])
+            s = s[0:-2]
+            game_lobby = ','.join(s) + idn1[0] + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + str(mesid.id) + "." + "0"
             with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
             play(message)
         else:
-            game_lobby = id
+            mesid = bot.send_message(message.chat.id, "Вы зашли в очередь. Ожидайте...")
+            game_lobby = id + '.' + str(mesid.id)
             with open(REPL + 'game_lobby.txt', 'w') as file:
                 file.write(game_lobby)
     elif id in toft:
@@ -112,8 +119,10 @@ def game(message):
 def play(message):
     with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
+    k = -1
     for i in s:
-        player1, player2, round_number, bo, mao = i.split('.')
+        k += 1
+        player1, player2, round_number, bo, mao, em_mes = i.split('.')
         markup = types.InlineKeyboardMarkup()
         emoji = []
         for i in bo.split("/"):
@@ -123,6 +132,11 @@ def play(message):
                 emoji.append("❌")
             elif i == "o":
                 emoji.append("🅾️")
+        spisokmsg = []
+        if em_mes == "-1":
+            print(mao)
+            spisokmsg = mao.split("^")[2:4]
+            print(spisokmsg)
         btn1 = types.InlineKeyboardButton(f'{emoji[0]}', callback_data='left_top')
         btn2 = types.InlineKeyboardButton(f'{emoji[1]}', callback_data='mid_top')
         btn3 = types.InlineKeyboardButton(f'{emoji[2]}', callback_data='right_top')
@@ -132,25 +146,49 @@ def play(message):
         btn7 = types.InlineKeyboardButton(f'{emoji[6]}', callback_data='left_bot')
         btn8 = types.InlineKeyboardButton(f'{emoji[7]}', callback_data='mid_bot')
         btn9 = types.InlineKeyboardButton(f'{emoji[8]}', callback_data='right_bot')
-        markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9)
+        stick1 = types.InlineKeyboardButton(f'︻デ═一', callback_data='stick1')
+        stick2 = types.InlineKeyboardButton(f'😢', callback_data='stick2')
+        stick3 = types.InlineKeyboardButton(f'😑', callback_data='stick3')
+        stick4 = types.InlineKeyboardButton(f'☕️', callback_data='stick4')
+        stick5 = types.InlineKeyboardButton(f'❤️', callback_data='stick5')
+        stick6 = types.InlineKeyboardButton(f'😨', callback_data='stick6')
+        markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, stick1, stick2, stick3, stick4, stick5, stick6)
         round_number = int(round_number)
         pole.board(bo)
         if round_number % 2 == 1:
             image = 'res.png'
             file = open('img/' + image, 'rb')
-            bot.send_photo(int(player1), file)
+            msg = bot.send_photo(int(player1), file)
+            spisokmsg.append(str(msg.id))
             if round_number == 1:
-                bot.send_message(int(player1), "Вы - крестик. Выберите поле для хода.", reply_markup=markup)
+                msg = bot.send_message(int(player1), "Вы - крестик. Выберите поле для хода.", reply_markup=markup)
+                spisokmsg.insert(0, mao)
+                spisokmsg.append(str(msg.id))
             else:
-                bot.send_message(int(player1), "Выберите поле для хода.", reply_markup=markup)
+                msg = bot.send_message(int(player1), "Выберите поле для хода.", reply_markup=markup)
+                spisokmsg.append(str(msg.id))
+                spisokmsg.insert(0, mao.split("^")[0])
+                spisokmsg.insert(1, mao.split("^")[1])
         if round_number % 2 == 0:
             image = 'res.png'
             file = open('img/' + image, 'rb')
-            bot.send_photo(int(player2), file)
+            msg = bot.send_photo(int(player2), file)
+            spisokmsg.append(str(msg.id))
             if round_number == 2:
-                bot.send_message(int(player2), "Вы - нолик. Выберите поле для хода.", reply_markup=markup)
+                msg = bot.send_message(int(player2), "Вы - нолик. Выберите поле для хода.", reply_markup=markup)
+                spisokmsg.append(str(msg.id))
+                spisokmsg.insert(0, mao.split("^")[0])
+                spisokmsg.insert(1, mao.split("^")[1])
             else:
-                bot.send_message(int(player2), "Выберите поле для хода.", reply_markup=markup)
+                msg = bot.send_message(int(player2), "Выберите поле для хода.", reply_markup=markup)
+                spisokmsg.append(str(msg.id))
+                spisokmsg.insert(0, mao.split("^")[0])
+                spisokmsg.insert(1, mao.split("^")[1])
+        i = f'{player1}.{player2}.{round_number}.{bo}.{"^".join(spisokmsg)}.{em_mes}'
+        s[k] = i
+    game_lobby = ",".join(s)
+    with open(REPL + 'game_lobby.txt', 'w') as file:
+        file.write(game_lobby)
 
 
 @bot.callback_query_handler(func=lambda callback: True)
@@ -174,124 +212,230 @@ def callback_mes(callback):
         t = 8
     elif callback.data == 'right_bot':
         t = 9
+    elif callback.data == "stick1":
+        t = 11
+    elif callback.data == "stick2":
+        t = 12
+    elif callback.data == "stick3":
+        t = 13
+    elif callback.data == "stick4":
+        t = 14
+    elif callback.data == "stick5":
+        t = 15
+    elif callback.data == "stick6":
+        t = 16
+    elif callback.data == "yeap":
+        t = 20
+    elif callback.data == "nope":
+        t = 19
     move = str(callback.message.chat.id)
     count = 0
     with open(REPL + 'game_lobby.txt', 'r') as file:
         s = file.read().split(',')
+    standart_mes_count = 4
     for i in s:
         count += 1
         if move in i:
             li = i.split(".")
             wait = ""
+            if li[0] == move and int(li[2]) % 2 == 1:
+                wait = li[1]
+            elif li[1] == move and int(li[2]) % 2 == 0:
+                wait = li[0]
             pol = li[3].split("/")
-            if pol[t - 1] == "?":
+            msg = li[4].split("^")
+            if int(li[5]) > 10:
+                qu1 = bot.send_message(int(wait), "Соперник отправил вам стикер")
+                qu2 = bot.send_sticker(int(wait), EMOJIES[int(li[5]) - 11])
+                qu = str(qu1.id)
+                msg.append(qu)
+                msg.append(str(qu2.id))
+                li[5] = "1"
+            if t == 20:
                 if li[0] == move and int(li[2]) % 2 == 1:
-                    pol[t - 1] = "x"
-                    pol = "/".join(pol)
                     wait = li[1]
                 elif li[1] == move and int(li[2]) % 2 == 0:
-                    pol[t - 1] = "o"
-                    pol = "/".join(pol)
                     wait = li[0]
-                bot.delete_message(int(move), int(li[4]) + 1)  # 74 # 77 #81
-                bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 78 # 82
-                if int(li[2]) == 1:
-                    bot.delete_message(int(wait), int(li[4]))  # 73
-                elif int(li[2]) != 1:
-                    bot.delete_message(int(wait), int(li[4]))  # 76
-                    bot.delete_message(int(move), int(li[4]) + 3)  # 79
-                if (pol[0] == "o" and pol[2] == "o" and pol[4] == "o" or
-                        pol[6] == "o" and pol[8] == "o" and pol[10] == "o" or
-                        pol[12] == "o" and pol[14] == "o" and pol[16] == "o" or
-                        pol[0] == "o" and pol[6] == "o" and pol[12] == "o" or
-                        pol[2] == "o" and pol[8] == "o" and pol[14] == "o" or
-                        pol[4] == "o" and pol[10] == "o" and pol[16] == "o" or
-                        pol[0] == "o" and pol[8] == "o" and pol[16] == "o" or
-                        pol[12] == "o" and pol[8] == "o" and pol[4] == "o"):
-                    s.remove(i)
-                    game_lobby = ','.join(s)
-                    with open(REPL + 'game_lobby.txt', 'w') as file:
-                        file.write(game_lobby)
-                    bot.send_message(int(wait), "Победа игрока о")
-                    bot.send_message(int(move), "Победа игрока о")
-                    conn = sqlite3.connect(REPL + "users.db")
-                    cur = conn.cursor()
-                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
-                                       (int(move),)).fetchone()
-                    if tabl:
-                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''',
-                                         (tabl[1],)).fetchone()
-                        if not ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
-                                        (tabl[1], 1))
-                        if ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
-                                        (tabl[1], ss[2] + 1))
-                        conn.commit()
-                        conn.close()
-                elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
-                      pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
-                      pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
-                      pol[0] == "x" and pol[6] == "x" and pol[12] == "x" or
-                      pol[2] == "x" and pol[8] == "x" and pol[14] == "x" or
-                      pol[4] == "x" and pol[10] == "x" and pol[16] == "x" or
-                      pol[0] == "x" and pol[8] == "x" and pol[16] == "x" or
-                      pol[12] == "x" and pol[8] == "x" and pol[4] == "x"):
-                    s.remove(i)
-                    game_lobby = ','.join(s)
-                    with open(REPL + 'game_lobby.txt', 'w') as file:
-                        file.write(game_lobby)
-                    bot.send_message(int(wait), "Победа игрока x")
-                    bot.send_message(int(move), "Победа игрока x")
-                    conn = sqlite3.connect(REPL + "users.db")
-                    cur = conn.cursor()
-                    tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
-                                       (int(move),)).fetchone()
-                    if tabl:
-                        ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''',
-                                         (tabl[1],)).fetchone()
-                        if not ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
-                                        (tabl[1], 1))
-                        if ss:
-                            cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
-                                        (tabl[1], ss[2] + 1))
-                        conn.commit()
-                        conn.close()
-                elif int(li[2]) == 9:
-                    bot.send_message(int(wait), "ничья")
-                    bot.send_message(int(move), "ничья")
-                else:
-                    qu = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
-                    mesid = qu.id
-                    bot.send_message(int(wait), "Соперник сделал ход")
-                    timered = [li[0], li[1], str(int(li[2]) + 1), pol, str(mesid)]  # 76 # 80
-                    r = '.'.join(timered)
-                    s[count - 1] = r
-                    game_lobby = ','.join(s)
-                    with open(REPL + 'game_lobby.txt', 'w') as file:
-                        file.write(game_lobby)
-                    play(int(wait))
-            else:
-                if li[0] == move:
-                    wait = li[1]
-                elif li[1] == move:
-                    wait = li[0]
-                bot.send_message(int(wait), "Ваш ход принят. Ожидайте соперника")
-                qu = bot.send_message(int(move), "Это поле занято. Выберите другое поле.")
-                mesid = qu.id - 1
-                bot.delete_message(int(wait), int(li[4]))  # 80
-                bot.delete_message(int(move), int(li[4]) + 1)  # 80
-                bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 81
-                bot.delete_message(int(move), int(li[4]) + 3)  # 75 # 82
+                bot.delete_message(int(move), int(msg[-1]))
+                bot.delete_message(int(move), int(msg[-2]))
+                qu1 = bot.send_message(int(move), "Стикер отправлен, теперь сделайте свой ход")
+                msg.remove(msg[-1])
+                msg.remove(msg[-1])
+                msg.append(str(qu1.id))
+                msg = "^".join(msg)
                 pol = "/".join(pol)
-                timered = [li[0], li[1], str(int(li[2])), pol, str(mesid)]
+                timered = [li[0], li[1], str(li[2]), pol, msg, str(int(li[5]) + 11)]  # 76 # 80
                 r = '.'.join(timered)
                 s[count - 1] = r
                 game_lobby = ','.join(s)
                 with open(REPL + 'game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
-                play(int(move))
+            elif t == 19:
+                bot.delete_message(int(move), int(msg[-1]))
+                bot.delete_message(int(move), int(msg[-2]))
+                msg.remove(msg[-1])
+                msg.remove(msg[-2])
+                msg = "^".join(msg)
+                pol = "/".join(pol)
+                timered = [li[0], li[1], str(li[2]), pol, msg, "0"]  # 76 # 80
+                r = '.'.join(timered)
+                s[count - 1] = r
+                game_lobby = ','.join(s)
+                with open(REPL + 'game_lobby.txt', 'w') as file:
+                    file.write(game_lobby)
+            elif t > 10:
+                markup = types.InlineKeyboardMarkup(row_width=3)
+                btn1 = types.InlineKeyboardButton("Отправить", callback_data='yeap')
+                btn2 = types.InlineKeyboardButton("Не отправлять", callback_data='nope')
+                markup.add(btn1, btn2)
+                qu1 = bot.send_message(int(move), "Вы выбрали такой эмодзи, отправить его сопернику? Эмодзи можно отправлять"
+                                                  "1 раз за ход", reply_markup=markup)
+                qu2 = bot.send_sticker(int(move), EMOJIES[t-11])
+                qu = str(qu1.id) + "^" + str(qu2.id)
+                msg.append(qu)
+                msg = "^".join(msg)
+                pol = "/".join(pol)
+                timered = [li[0], li[1], str(li[2]), pol, msg, str(t - 11)]  # 76 # 80
+                r = '.'.join(timered)
+                s[count - 1] = r
+                game_lobby = ','.join(s)
+                with open(REPL + 'game_lobby.txt', 'w') as file:
+                    file.write(game_lobby)
+            else:
+                if pol[t - 1] == "?":
+                    if li[0] == move and int(li[2]) % 2 == 1:
+                        pol[t - 1] = "x"
+                        pol = "/".join(pol)
+                        wait = li[1]
+                    elif li[1] == move and int(li[2]) % 2 == 0:
+                        pol[t - 1] = "o"
+                        pol = "/".join(pol)
+                        wait = li[0]
+                    if li[2] == "1":
+                        bot.delete_message(wait, int(msg[0]))
+                        bot.delete_message(move, int(msg[1]))
+                        bot.delete_message(move, int(msg[2]))
+                        for x in range(3):
+                            msg.remove(msg[0])
+                    if li[2] != "1":
+                        bot.delete_message(wait, int(msg[0]))
+                        bot.delete_message(move, int(msg[1]))
+                        bot.delete_message(move, int(msg[2]))
+                        bot.delete_message(move, int(msg[3]))
+                        for x in range(4):
+                            msg.remove(msg[0])
+                    if li[5] == "-1":
+                        bot.delete_message(move, int(msg[-1]))
+                        bot.delete_message(move, int(msg[-2]))
+                        li[5] = "0"
+                        msg = []
+                    elif li[5] == "1":
+                        bot.delete_message(move,int(msg[-3]))
+                        msg.remove(msg[-3])
+                        li[5] = "-1"
+                    # bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 78 # 82
+                    # bot.delete_message(int(move), int(li[4]) + 1)  # 74 # 77 #81
+                    # if int(li[2]) == 1:
+                    #     bot.delete_message(int(wait), int(li[4]))  # 73
+                    # elif int(li[2]) != 1:
+                    #     bot.delete_message(int(wait), int(li[4]))  # 76
+                    #     bot.delete_message(int(move), int(li[4]) + 3)  # 79
+                    if (pol[0] == "o" and pol[2] == "o" and pol[4] == "o" or
+                            pol[6] == "o" and pol[8] == "o" and pol[10] == "o" or
+                            pol[12] == "o" and pol[14] == "o" and pol[16] == "o" or
+                            pol[0] == "o" and pol[6] == "o" and pol[12] == "o" or
+                            pol[2] == "o" and pol[8] == "o" and pol[14] == "o" or
+                            pol[4] == "o" and pol[10] == "o" and pol[16] == "o" or
+                            pol[0] == "o" and pol[8] == "o" and pol[16] == "o" or
+                            pol[12] == "o" and pol[8] == "o" and pol[4] == "o"):
+                        s.remove(i)
+                        game_lobby = ','.join(s)
+                        with open(REPL + 'game_lobby.txt', 'w') as file:
+                            file.write(game_lobby)
+                        bot.send_message(int(wait), "Победа игрока о")
+                        bot.send_message(int(move), "Победа игрока о")
+                        conn = sqlite3.connect(REPL + "users.db")
+                        cur = conn.cursor()
+                        tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                                           (int(move),)).fetchone()
+                        if tabl:
+                            ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''',
+                                             (tabl[1],)).fetchone()
+                            if not ss:
+                                cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                            (tabl[1], 1))
+                            if ss:
+                                cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                            (tabl[1], ss[2] + 1))
+                            conn.commit()
+                            conn.close()
+                    elif (pol[0] == "x" and pol[2] == "x" and pol[4] == "x" or
+                          pol[6] == "x" and pol[8] == "x" and pol[10] == "x" or
+                          pol[12] == "x" and pol[14] == "x" and pol[16] == "x" or
+                          pol[0] == "x" and pol[6] == "x" and pol[12] == "x" or
+                          pol[2] == "x" and pol[8] == "x" and pol[14] == "x" or
+                          pol[4] == "x" and pol[10] == "x" and pol[16] == "x" or
+                          pol[0] == "x" and pol[8] == "x" and pol[16] == "x" or
+                          pol[12] == "x" and pol[8] == "x" and pol[4] == "x"):
+                        s.remove(i)
+                        game_lobby = ','.join(s)
+                        with open(REPL + 'game_lobby.txt', 'w') as file:
+                            file.write(game_lobby)
+                        bot.send_message(int(wait), "Победа игрока x")
+                        bot.send_message(int(move), "Победа игрока x")
+                        conn = sqlite3.connect(REPL + "users.db")
+                        cur = conn.cursor()
+                        tabl = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                                           (int(move),)).fetchone()
+                        if tabl:
+                            ss = cur.execute('''SELECT * FROM leaderboard WHERE nickname = ?''',
+                                             (tabl[1],)).fetchone()
+                            if not ss:
+                                cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                            (tabl[1], 1))
+                            if ss:
+                                cur.execute('''INSERT INTO leaderboard (nickname, wins) VALUES (?, ?)''',
+                                            (tabl[1], ss[2] + 1))
+                            conn.commit()
+                            conn.close()
+                    elif int(li[2]) == 9:
+                        bot.send_message(int(wait), "ничья")
+                        bot.send_message(int(move), "ничья")
+                    else:
+                        qu1 = bot.send_message(int(move), "Ваш ход принят. Ожидайте соперника")
+                        qu2 = bot.send_message(int(wait), "Соперник сделал ход")
+                        if li[5] == "-1":
+                            msg.insert(0, str(qu1.id))
+                        else:
+                            msg.append(str(qu1.id))
+                        msg.append(str(qu2.id))
+                        timered = [li[0], li[1], str(int(li[2]) + 1), pol, "^".join(msg), li[5]]  # 76 # 80
+                        r = '.'.join(timered)
+                        s[count - 1] = r
+                        game_lobby = ','.join(s)
+                        with open(REPL + 'game_lobby.txt', 'w') as file:
+                            file.write(game_lobby)
+                        play(int(wait))
+                else:
+                    if li[0] == move:
+                        wait = li[1]
+                    elif li[1] == move:
+                        wait = li[0]
+                    qu1 = bot.send_message(int(wait), "Ваш ход принят. Ожидайте соперника")
+                    qu2 = bot.send_message(int(move), "Соперник сделал ход")
+                    qu = str(qu1.id) + "^" + str(qu2.id)
+                    bot.delete_message(wait, int(msg[0]))
+                    bot.delete_message(move, int(msg[1]))
+                    bot.delete_message(move, int(msg[2]))
+                    bot.delete_message(move, int(msg[3]))
+                    pol = "/".join(pol)
+                    timered = [li[0], li[1], str(int(li[2])), pol, str(qu), li[5]]
+                    r = '.'.join(timered)
+                    s[count - 1] = r
+                    game_lobby = ','.join(s)
+                    with open(REPL + 'game_lobby.txt', 'w') as file:
+                        file.write(game_lobby)
+                    play(int(move))
 
 
 # @bot.message_handler(commands=['google'])
@@ -327,12 +471,300 @@ def tests_video(message):
             bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
 
-@bot.message_handler(commands=['contacts'])
-def site(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton('lanfrod', url='https://vk.com/lanfrod'))
-    markup.add(types.InlineKeyboardButton('intestine1', url='https://vk.com/intestine1'))
-    bot.send_message(message.chat.id, f'Привет, вот контакты разработчиков', reply_markup=markup)
+@bot.message_handler(commands=['list'])
+def listorian(message):
+    global iddus
+    print(message)
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    sos1 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ? AND admin > ?''', (message.from_user.id, 0, )).fetchone()
+    print(sos1)
+    if sos1:
+        bot.send_message(message.chat.id, f'Введите пароль от аккаунта для входа в админскую систему')
+        iddus = sos1[0]
+        bot.register_next_step_handler(message, autorization)
+    else:
+        bot.send_message(message.chat.id, f'У вас нет прав для входа.')
+
+
+def autorization(message):
+    bot.send_message(message.chat.id, f'-------------------------------------------WARNING-------------------------------------------\nНаходясь'
+                                      f' в системе администрирования, вы не можете использовать функции которые не '
+                                      f'относятся к функциям администратора \nДля отмены действия пропишите: "назад"'
+                                      f'\nДля выхода из системы администрирования пропишите: "выход" или воспользуйтесь '
+                                      f'специальной кнопкой')
+    sip = message.text
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    sos1 = cur.execute('''SELECT * FROM passwords WHERE id = ?''', (iddus, )).fetchone()
+    aut = True
+    with open(REPL + 'hesh.txt', 'r') as file:
+        k = file.read().split(" ")
+        heshing = {}
+        for i in range(len(k) // 2):
+            heshing[k[i * 2]] = k[i * 2 + 1]
+        hesh_password = ""
+        for i in sip:
+            if i not in PASSWORD:
+                aut = False
+            else:
+                hesh_password += heshing[i]
+    print(hesh_password,)
+    if hesh_password == sos1[2] and aut:
+        global markup_admin
+        sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ? AND admin > ?''',
+                           (message.from_user.id, 0,)).fetchone()
+        markup_admin = types.ReplyKeyboardMarkup(row_width=1)
+        markup_admin.add(types.InlineKeyboardButton("Изменить список играющих"))
+        markup_admin.add(types.InlineKeyboardButton("Изменить таблицу лидеров"))
+        if sos2[-2] == 2:
+            markup_admin.add(types.InlineKeyboardButton("Изменить таблицу аккаунтов"))
+            markup_admin.add(types.InlineKeyboardButton("Заявки в администрацию"))
+        markup_admin.add(types.InlineKeyboardButton("Выход"))
+        bot.send_message(message.chat.id, f'Доступ разрешён', reply_markup=markup_admin)
+        print(message)
+        bot.register_next_step_handler(message, list_blinks)
+    else:
+        bot.send_message(message.chat.id, f'В доступе отказано')
+        bot.clear_step_handler(message)
+        all_messages(message)
+
+
+def list_blinks(message):
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ? AND admin > ?''',
+                       (message.from_user.id, 0,)).fetchone()
+    with open(REPL + "game_lobby.txt", "r") as file:
+        k = file.read().split(",")
+    print(5666666666666666666666666666666666666666666666666666, k)
+    if message.text == "Изменить список играющих":
+        sec = ""
+        if k == [""]:
+            bot.send_message(message.chat.id, "На данный момент нет активных пар")
+            bot.register_next_step_handler(message, list_blinks)
+        else:
+            for i in k:
+                ii = i.split(".")
+                sec += f"Пара {k.index(i) + 1}: id1:{ii[0]}, id2:{ii[1]}, turn:{ii[2]}, board:{ii[3]}, sticker_info:{ii[4]}\n\n"
+            bot.send_message(message.chat.id, sec)
+            bot.send_message(message.chat.id, "Напишите номер пары для удаления")
+            bot.register_next_step_handler(message, list_players)
+    elif message.text == "Изменить таблицу лидеров":
+        sos1 = cur.execute('''SELECT * FROM leaderboard''').fetchall()
+        print(sos1)
+        sec = ""
+        if k == [""]:
+            bot.send_message(message.chat.id, "На данный момент нет лидеров")
+            bot.register_next_step_handler(message, list_blinks)
+        else:
+            for i in sos1:
+                print(i)
+                sec += f"{sos1.index(i) + 1}: id:{i[0]}, nickname:{i[1]}, wins:{i[2]}\n\n"
+                print(sec)
+            bot.send_message(message.chat.id, sec)
+            bot.send_message(message.chat.id, "Напишите номер игрока для редактирования")
+            bot.register_next_step_handler(message, list_leaderbord)
+    elif message.text == "Изменить таблицу аккаунтов" and sos2[-2] == 2:
+        sos1 = cur.execute('''SELECT * FROM userinfo''').fetchall()
+        print(sos1)
+        sec = ""
+        for i in sos1:
+            print(i)
+            sec += f"{sos1.index(i) + 1}: id:{i[0]}, login:{i[1]}, email:{i[2]}, nickname:{i[3]}, tg_id:{i[4]}, " \
+                   f"admin:{i[5]}, towns_weather:{i[6]}\n\n"
+            print(sec)
+        bot.send_message(message.chat.id, sec)
+        bot.send_message(message.chat.id, "Напишите номер игрока для редактирования")
+        bot.register_next_step_handler(message, list_accounts)
+    elif message.text == "Заявки в администрацию" and sos2[-2] == 2:
+        sos1 = cur.execute('''SELECT * FROM request''').fetchone()
+        if sos1 == None:
+            bot.send_message(message.chat.id, "Нет заявок на пост администратора")
+            bot.register_next_step_handler(message, list_blinks)
+        else:
+            markup = types.ReplyKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton("Принять"))
+            markup.add(types.InlineKeyboardButton("Отклонить"))
+            bot.send_message(message.chat.id, f"Ник: {sos1[1]} \n tg_id: {sos1[2]} \n"
+                                          f"Возраст: {sos1[3]} \n Причина: {sos1[-1]}", reply_markup=markup)
+            bot.register_next_step_handler(message, list_tickets)
+    elif message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    else:
+        bot.send_message(message.chat.id, "Неизвестная команда")
+        bot.register_next_step_handler(message, list_blinks)
+
+
+def list_players(message):
+    ss = message.text
+    print(ss)
+    with open(REPL + "game_lobby.txt", "r") as file:
+        k = file.read().split(",")
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    elif message.text.lower() == "назад":
+        bot.register_next_step_handler(message, list_blinks)
+    elif ss.isdigit():
+        print(1, "da")
+        if int(ss) > 0 and int(ss) < len(k) + 1:
+            k.remove(k[int(ss) - 1])
+            k = ",".join(k)
+            with open(REPL + 'game_lobby.txt', 'w') as file:
+                file.write(k)
+            bot.send_message(message.chat.id, "Пара успешно удалена. Выберите дальнейшее действие", reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
+        else:
+            bot.send_message(message.chat.id, "Неверное значение")
+            bot.register_next_step_handler(message, list_players)
+    else:
+        bot.send_message(message.chat.id, "Неверное значение")
+        bot.register_next_step_handler(message, list_players)
+
+
+def list_leaderbord(message):
+    ss = message.text
+    print(ss)
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    k = cur.execute('''SELECT * FROM leaderboard''').fetchall()
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    elif message.text.lower() == "назад":
+        bot.register_next_step_handler(message, list_blinks)
+    elif ss.isdigit():
+        if int(ss) > 0 and int(ss) < len(k) + 1:
+            cur.execute('''DELETE FROM leaderboard WHERE id = ?''', (k[int(ss) - 1][0],))
+            conn.commit()
+            bot.send_message(message.chat.id, "Лидер успешно удалён. Выберите дальнейшее действие", reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
+        else:
+            bot.send_message(message.chat.id, "Неверное значение")
+            bot.register_next_step_handler(message, list_leaderbord)
+    else:
+        bot.send_message(message.chat.id, "Неверное значение")
+        bot.register_next_step_handler(message, list_leaderbord)
+
+
+def list_accounts(message):
+    ss = message.text
+    print(ss)
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    k = cur.execute('''SELECT * FROM userinfo''').fetchall()
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    elif message.text.lower() == "назад":
+        bot.register_next_step_handler(message, list_blinks)
+    elif ss.isdigit():
+        if int(ss) > 0 and int(ss) < len(k) + 1:
+            cur.execute('''DELETE FROM userinfo WHERE id = ?''', (k[int(ss) - 1][0],))
+            conn.commit()
+            bot.send_message(message.chat.id, "Пользователь успешно удалён. Выберите дальнейшее действие", reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
+        else:
+            bot.send_message(message.chat.id, "Неверное значение")
+            bot.register_next_step_handler(message, list_leaderbord)
+    else:
+        bot.send_message(message.chat.id, "Неверное значение")
+        bot.register_next_step_handler(message, list_leaderbord)
+
+
+def list_tickets(message):
+    ss = message.text
+    print(ss)
+
+    all_messages(message)
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    k = cur.execute('''SELECT * FROM request''').fetchone()
+    print(11111111111111111111, k[1])
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    elif message.text.lower() == "назад":
+        bot.register_next_step_handler(message, list_blinks)
+    elif ss.lower() == "принять":
+        cur.execute('''DELETE FROM request WHERE id = ?''', (k[0],))
+        print(k[2])
+        proverb = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (k[2],)).fetchone()
+        print(proverb, "4e")
+        cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
+        cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
+            towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                    (proverb[0], proverb[1], proverb[2], proverb[3], proverb[4], 1, proverb[-1], ))
+        conn.commit()
+        conn.commit()
+        bot.send_message(message.chat.id, "Пользователь успешно принят на пост администратора. Выберите дальнейшее действие", reply_markup=markup_admin)
+        bot.send_message(proverb[4], "Вы успешно приняты на пост администратора. За информацией о своих обязанностях "
+                                     "вы можете обратиться к создателям. Их контакты можно найти в команде /contacts. "
+                                     "Специальная команда для админ меню - /list")
+        bot.register_next_step_handler(message, list_blinks)
+    elif ss.lower() == 'отклонить':
+        print(k[1])
+        cur.execute('''DELETE FROM request WHERE tg_id = ?''', (k[2],))
+        conn.commit()
+        bot.send_message(message.chat.id, "Пользователь отклонён. Выберите дальнейшее действие",
+                         reply_markup=markup_admin)
+        bot.register_next_step_handler(message, list_blinks)
+    else:
+        bot.send_message(message.chat.id, "Неверное значение")
+        bot.register_next_step_handler(message, list_leaderbord)
+
+
+@bot.message_handler(commands=["ticket"])
+def ticket(message):
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    sos2 = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''',
+                       (message.from_user.id,)).fetchone()
+    sos3 = cur.execute('''SELECT * FROM request WHERE tg_id = ?''',
+                       (message.from_user.id,)).fetchone()
+    if not sos2 or sos2[5] > 0:
+        bot.send_message(message.chat.id, "Для подачи заявки вы должны быть зарегистрированным и не являться администратором")
+        bot.clear_step_handler(message)
+    elif sos3:
+        bot.send_message(message.chat.id,"Вы уже подали заявку, ожидайте ответа")
+        bot.clear_step_handler(message)
+    else:
+        bot.send_message(message.chat.id, "Введите свой возраст")
+        bot.register_next_step_handler(message, old)
+
+
+def old(message):
+    global old
+    old = message.text
+    print(old)
+    bot.send_message(message.chat.id, "Почему именно вы должны стать администратором?")
+    bot.register_next_step_handler(message, prichina)
+
+
+def prichina(message):
+    nickname = message.from_user.first_name
+    tgid = message.from_user.id
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    prichina = message.text
+    print(1, prichina)
+    print(2, old)
+    cur.execute("INSERT INTO request (nickname, tg_id, old, prichina) VALUES ('%s', '%s', '%s', '%s')" % (nickname, tgid, old, prichina,))
+    conn.commit()
+    bot.send_message(message.chat.id, "Заявка успешно отправлена. Ожидайте результата")
+
+
+# @bot.message_handler(commands=['contacts'])
+# def site(message):
+#     markup = types.InlineKeyboardMarkup()
+#     markup.add(types.InlineKeyboardButton('lanfrod', url='https://vk.com/lanfrod'))
+#     markup.add(types.InlineKeyboardButton('intestine1', url='https://vk.com/intestine1'))
+#     bot.send_message(message.chat.id, f'Привет, вот контакты разработчиков', reply_markup=markup)
 
 
 @bot.message_handler(commands=['registration'])
@@ -531,7 +963,7 @@ def towny(message):
         cur = conn.cursor()
         if cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone():
             proverb = cur.execute('''SELECT towns_weather FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone()
-            if not proverb:
+            if not proverb[0]:
                 bot.send_message(message.chat.id, 'Напишите город')
                 bot.register_next_step_handler(message, addit)
             elif message.text == "Добавить город" and len(proverb[0].split(",")) < 3:
@@ -582,9 +1014,9 @@ def addit(message):
             elif not proverb[-1]:
                 proverb[-1] = city.capitalize()
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
-            cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
-        towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
-                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
+            cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
+        towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                        (proverb[0], proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
             conn.commit()
             bot.send_message(message.chat.id, f'Город {city.capitalize()} добавлен')
             bot.clear_step_handler(message)
@@ -618,9 +1050,9 @@ def deleteit(message):
                 check.remove(city.capitalize())
                 proverb[-1] = ",".join(check)
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (tgid,))
-            cur.execute('''INSERT INTO userinfo (login, email, nickname, tg_id, admin, 
-        towns_weather) VALUES (?, ?, ?, ?, ?, ?)''',
-                        (proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
+            cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
+        towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                        (proverb[0], proverb[1], proverb[2], proverb[3], proverb[4], proverb[5], proverb[-1], ))
             conn.commit()
             bot.send_message(message.chat.id, f'Город {city.capitalize()} удалён')
             bot.clear_step_handler(message)
@@ -629,6 +1061,7 @@ def deleteit(message):
             bot.send_message(message.chat.id, f'Город {city.capitalize()} нет в списке')
             bot.clear_step_handler(message)
             all_messages(message)
+
 
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
@@ -643,6 +1076,7 @@ def get_weather(message):
         proverb = list(cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (tgid,)).fetchone())
         if len(proverb) >= 1 and proverb[-1] != 0:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=len(proverb[-1].split(",")))
+            print(proverb[-1].split(","))
             for i in proverb[-1].split(","):
                 markup.add(types.InlineKeyboardButton(f'{i}'))
             bot.send_message(message.chat.id, 'Напишите город, в котором хотите увидеть погоду', reply_markup=markup)
@@ -699,7 +1133,10 @@ def answer(message):
                 image = REPL + 'img/tyman.jpg'
                 file = open(image, 'rb')
                 bot.send_photo(message.chat.id, file)
+            all_messages(message)
         else:
             bot.reply_to(message, "Город не найден. Попробуйте снова.")
+            all_messages(message)
+
 
 bot.polling(none_stop=True)
