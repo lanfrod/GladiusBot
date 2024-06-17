@@ -579,7 +579,7 @@ def list_blinks(message):
             sec += f"{sos1.index(i) + 1}: id:{i[0]}, login:{i[1]}, email:{i[2]}, nickname:{i[3]}, tg_id:{i[4]}, " \
                    f"admin:{i[5]}, towns_weather:{i[6]}\n\n"
             print(sec)
-        markup = types.ReplyKeyboardMarkup(row_width=1)
+        markup = types.ReplyKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("Назад"))
         bot.send_message(message.chat.id, sec)
         bot.send_message(message.chat.id, "Напишите номер пользователя для выбора действия", reply_markup=markup)
@@ -682,10 +682,17 @@ def list_accounts(message):
             markup.add(types.InlineKeyboardButton("Понизить админа"))
             markup.add(types.InlineKeyboardButton("Удалить пользователя"))
             markup.add(types.InlineKeyboardButton("Назад"))
+            all_messages(message)
             accounteee = ss
             print(accounteee)
-            bot.send_message(message.chat.id, "Пользователь выбран. Выберите дальнейшее действие", reply_markup=markup)
-            bot.register_next_step_handler(message, rasp_punkt)
+            if k[int(ss) - 1][-3] == message.chat.id:
+                all_messages(message)
+                bot.send_message(message.chat.id, "Вы не можете выполнять действия со своим аккаунтом",
+                                 reply_markup=markup_admin)
+                bot.register_next_step_handler(message, list_blinks)
+            else:
+                bot.send_message(message.chat.id, "Пользователь выбран. Выберите дальнейшее действие", reply_markup=markup)
+                bot.register_next_step_handler(message, rasp_punkt)
         else:
             bot.send_message(message.chat.id, "Неверное значение")
             bot.register_next_step_handler(message, list_accounts)
@@ -728,6 +735,7 @@ def accounts_redact(message, rep):
             bot.send_message(message.chat.id, "Пользователь имеет максимальный уровень, повышение не работает"
                                               ". Выберите дальнейшее действие",
                              reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
         if proverb[-2] < 2:
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
             cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
@@ -745,6 +753,7 @@ def accounts_redact(message, rep):
             bot.send_message(message.chat.id, "Пользователь не имеет повышенного уровня, понижение не сработало"
                                               ". Выберите дальнейшее действие",
                              reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
         if proverb[-2] != 0:
             cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
             cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
