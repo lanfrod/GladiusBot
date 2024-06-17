@@ -98,7 +98,7 @@ def game(message):
         elif len(qua) == 2 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
             idn1 = s[-1].split(".")
-            bot.delete_message(idn1[0], idn1[1])
+            #bot.delete_message(idn1[0], idn1[1])
             s = s[0:-2]
             game_lobby = ','.join(s) + idn1[0] + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + str(mesid.id) + "." + "0"
             with open(REPL + 'game_lobby.txt', 'w') as file:
