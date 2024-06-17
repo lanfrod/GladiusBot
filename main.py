@@ -20,7 +20,7 @@ EMOJIES = ['CAACAgIAAxkBAAEGMEhmbxtP12lTH-6Xro0WEd3mZJEtFQACG1IAAowQeUuDLK3SWk2y
            'CAACAgIAAxkBAAEGMERmbxtMZElajC1Dae8AAdnxGMvAPRsAAn5JAAKVmnlLBwAB0Icc3xgSNQQ',
            'CAACAgIAAxkBAAEGMExmbxtRwtjK64DFT_kRvNoIGhv_UAACT00AAjM_eEv_pagVw7mUjDUE',
            'CAACAgIAAxkBAAEGMEpmbxtQfhrv5f8bzER6tOC40rn-HgAC008AAnCleEtbGaePzX7lnTUE',
-           'CAACAgIAAxkBAAEGMEJmbxtMcViNdeWBswJPv5TTFKxN5QACWU8AAuh1eUvd6lZWQIHLSDUE'
+           'CAACAgIAAxkBAAEGMEJmbxtMcViNdeWBswJPv5TTFKxN5QACWU8AAuh1eUvd6lZWQIHLSDUE']
 
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
