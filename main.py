@@ -1,7 +1,6 @@
 import telebot
 from telebot import types
 import pymorphy2
-from PIL import Image, ImageDraw
 import sqlite3
 from translate import Translator
 import passss
@@ -471,7 +470,7 @@ def tests_video(message):
             bot.send_message(message.chat.id, f"https://www.youtube.com{results[i]['url_suffix']}")
 
 
-@bot.message_handler(commands=['list'])
+@bot.message_handler(commands=['admin'])
 def listorian(message):
     global iddus
     print(message)
@@ -488,11 +487,7 @@ def listorian(message):
 
 
 def autorization(message):
-    bot.send_message(message.chat.id, f'-------------------------------------------WARNING-------------------------------------------\nНаходясь'
-                                      f' в системе администрирования, вы не можете использовать функции которые не '
-                                      f'относятся к функциям администратора \nДля отмены действия пропишите: "назад"'
-                                      f'\nДля выхода из системы администрирования пропишите: "выход" или воспользуйтесь '
-                                      f'специальной кнопкой')
+
     sip = message.text
     conn = sqlite3.connect(REPL + 'users.db')
     cur = conn.cursor()
@@ -525,7 +520,11 @@ def autorization(message):
             markup_admin.add(types.InlineKeyboardButton("Заявки в администрацию"))
         markup_admin.add(types.InlineKeyboardButton("Выход"))
         bot.send_message(message.chat.id, f'Доступ разрешён', reply_markup=markup_admin)
-        print(message)
+        bot.send_message(message.chat.id, f'----------------------------WARNING----------------------------\nНаходясь'
+                                          f' в системе администрирования, вы не можете использовать функции которые не '
+                                          f'относятся к функциям администратора \nДля отмены действия пропишите: "назад"'
+                                          f'\nДля выхода из системы администрирования пропишите: "выход" или воспользуйтесь '
+                                          f'специальной кнопкой')
         bot.register_next_step_handler(message, list_blinks)
     else:
         bot.send_message(message.chat.id, f'В доступе отказано')
@@ -540,7 +539,6 @@ def list_blinks(message):
                        (message.from_user.id, 0,)).fetchone()
     with open(REPL + "game_lobby.txt", "r") as file:
         k = file.read().split(",")
-    print(5666666666666666666666666666666666666666666666666666, k)
     if message.text == "Изменить список играющих":
         sec = ""
         if k == [""]:
@@ -550,23 +548,27 @@ def list_blinks(message):
             for i in k:
                 ii = i.split(".")
                 sec += f"Пара {k.index(i) + 1}: id1:{ii[0]}, id2:{ii[1]}, turn:{ii[2]}, board:{ii[3]}, sticker_info:{ii[4]}\n\n"
+            markup = types.ReplyKeyboardMarkup(row_width=1)
+            markup.add(types.InlineKeyboardButton("Назад"))
             bot.send_message(message.chat.id, sec)
-            bot.send_message(message.chat.id, "Напишите номер пары для удаления")
+            bot.send_message(message.chat.id, "Напишите номер пары для удаления", reply_markup=markup)
             bot.register_next_step_handler(message, list_players)
     elif message.text == "Изменить таблицу лидеров":
-        sos1 = cur.execute('''SELECT * FROM leaderboard''').fetchall()
+        sos1 = cur.execute('''SELECT * FROM leaderboard ORDER BY wins DESC''').fetchall()
         print(sos1)
         sec = ""
-        if k == [""]:
-            bot.send_message(message.chat.id, "На данный момент нет лидеров")
+        if sos1 == [""]:
+            bot.send_message(message.chat.id, "На данный момент нет лидеров", reply_markup=markup_admin)
             bot.register_next_step_handler(message, list_blinks)
         else:
             for i in sos1:
                 print(i)
                 sec += f"{sos1.index(i) + 1}: id:{i[0]}, nickname:{i[1]}, wins:{i[2]}\n\n"
                 print(sec)
+            markup = types.ReplyKeyboardMarkup(row_width=1)
+            markup.add(types.InlineKeyboardButton("Назад"))
             bot.send_message(message.chat.id, sec)
-            bot.send_message(message.chat.id, "Напишите номер игрока для редактирования")
+            bot.send_message(message.chat.id, "Напишите номер игрока для удаления", reply_markup=markup)
             bot.register_next_step_handler(message, list_leaderbord)
     elif message.text == "Изменить таблицу аккаунтов" and sos2[-2] == 2:
         sos1 = cur.execute('''SELECT * FROM userinfo''').fetchall()
@@ -577,8 +579,10 @@ def list_blinks(message):
             sec += f"{sos1.index(i) + 1}: id:{i[0]}, login:{i[1]}, email:{i[2]}, nickname:{i[3]}, tg_id:{i[4]}, " \
                    f"admin:{i[5]}, towns_weather:{i[6]}\n\n"
             print(sec)
+        markup = types.ReplyKeyboardMarkup(row_width=1)
+        markup.add(types.InlineKeyboardButton("Назад"))
         bot.send_message(message.chat.id, sec)
-        bot.send_message(message.chat.id, "Напишите номер игрока для редактирования")
+        bot.send_message(message.chat.id, "Напишите номер пользователя для выбора действия", reply_markup=markup)
         bot.register_next_step_handler(message, list_accounts)
     elif message.text == "Заявки в администрацию" and sos2[-2] == 2:
         sos1 = cur.execute('''SELECT * FROM request''').fetchone()
@@ -598,6 +602,7 @@ def list_blinks(message):
     else:
         bot.send_message(message.chat.id, "Неизвестная команда")
         bot.register_next_step_handler(message, list_blinks)
+    conn.close()
 
 
 def list_players(message):
@@ -609,7 +614,9 @@ def list_players(message):
         bot.clear_step_handler(message)
         all_messages(message)
     elif message.text.lower() == "назад":
+        all_messages(message)
         bot.register_next_step_handler(message, list_blinks)
+        bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup_admin)
     elif ss.isdigit():
         print(1, "da")
         if int(ss) > 0 and int(ss) < len(k) + 1:
@@ -637,7 +644,9 @@ def list_leaderbord(message):
         bot.clear_step_handler(message)
         all_messages(message)
     elif message.text.lower() == "назад":
+        all_messages(message)
         bot.register_next_step_handler(message, list_blinks)
+        bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup_admin)
     elif ss.isdigit():
         if int(ss) > 0 and int(ss) < len(k) + 1:
             cur.execute('''DELETE FROM leaderboard WHERE id = ?''', (k[int(ss) - 1][0],))
@@ -662,25 +671,115 @@ def list_accounts(message):
         bot.clear_step_handler(message)
         all_messages(message)
     elif message.text.lower() == "назад":
+        all_messages(message)
         bot.register_next_step_handler(message, list_blinks)
+        bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup_admin)
     elif ss.isdigit():
         if int(ss) > 0 and int(ss) < len(k) + 1:
-            cur.execute('''DELETE FROM userinfo WHERE id = ?''', (k[int(ss) - 1][0],))
-            conn.commit()
-            bot.send_message(message.chat.id, "Пользователь успешно удалён. Выберите дальнейшее действие", reply_markup=markup_admin)
-            bot.register_next_step_handler(message, list_blinks)
+            global accounteee
+            markup = types.ReplyKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton("Повысить пользователя до админа"))
+            markup.add(types.InlineKeyboardButton("Понизить админа"))
+            markup.add(types.InlineKeyboardButton("Удалить пользователя"))
+            markup.add(types.InlineKeyboardButton("Назад"))
+            accounteee = ss
+            print(accounteee)
+            bot.send_message(message.chat.id, "Пользователь выбран. Выберите дальнейшее действие", reply_markup=markup)
+            bot.register_next_step_handler(message, rasp_punkt)
         else:
             bot.send_message(message.chat.id, "Неверное значение")
-            bot.register_next_step_handler(message, list_leaderbord)
+            bot.register_next_step_handler(message, list_accounts)
     else:
         bot.send_message(message.chat.id, "Неверное значение")
-        bot.register_next_step_handler(message, list_leaderbord)
+        bot.register_next_step_handler(message, list_accounts)
+
+def rasp_punkt(message):
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    elif message.text.lower() == "назад":
+        all_messages(message)
+        bot.register_next_step_handler(message, list_blinks)
+        bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup_admin)
+    elif message.text.lower() == "повысить пользователя до админа":
+        all_messages(message)
+        accounts_redact(message, 1)
+    elif message.text.lower() == "понизить админа":
+        all_messages(message)
+        accounts_redact(message, 2)
+    elif message.text.lower() == "удалить пользователя":
+        all_messages(message)
+        accounts_delete(message)
+    else:
+        bot.send_message(message.chat.id, "Неверное значение")
+        bot.register_next_step_handler(message, rasp_punkt)
+
+
+def accounts_redact(message, rep):
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    k = cur.execute('''SELECT * FROM userinfo''').fetchall()
+    if rep == 1:
+        proverb = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (k[int(accounteee) - 1][-3],)).fetchone()
+        print(proverb)
+        print(k)
+        print(k[int(accounteee) - 1][2])
+        if proverb[-2] == 2:
+            bot.send_message(message.chat.id, "Пользователь имеет максимальный уровень, повышение не работает"
+                                              ". Выберите дальнейшее действие",
+                             reply_markup=markup_admin)
+        if proverb[-2] < 2:
+            cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
+            cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
+                towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                        (proverb[0], proverb[1], proverb[2], proverb[3], proverb[4], proverb[-2] + 1, proverb[-1],))
+            conn.commit()
+            bot.send_message(message.chat.id, "Пользователь успешно повышен на 1 уровень. Выберите дальнейшее действие", reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
+    elif rep == 2:
+        proverb = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (k[int(accounteee) - 1][-3],)).fetchone()
+        print(proverb)
+        print(k)
+        print(k[int(accounteee) - 1][2])
+        if proverb[-2] == 0:
+            bot.send_message(message.chat.id, "Пользователь не имеет повышенного уровня, понижение не сработало"
+                                              ". Выберите дальнейшее действие",
+                             reply_markup=markup_admin)
+        if proverb[-2] != 0:
+            cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
+            cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
+                towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                        (proverb[0], proverb[1], proverb[2], proverb[3], proverb[4], proverb[-2] - 1, proverb[-1],))
+            conn.commit()
+            bot.send_message(message.chat.id, "Пользователь успешно понижен на 1 уровень. Выберите дальнейшее действие", reply_markup=markup_admin)
+            bot.register_next_step_handler(message, list_blinks)
+
+
+def accounts_delete(message):
+    conn = sqlite3.connect(REPL + 'users.db')
+    cur = conn.cursor()
+    k = cur.execute('''SELECT * FROM userinfo''').fetchall()
+    if message.text.lower() == "выход":
+        bot.clear_step_handler(message)
+        all_messages(message)
+    elif message.text.lower() == "назад":
+        all_messages(message)
+        bot.register_next_step_handler(message, list_blinks)
+        bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup_admin)
+    else:
+        proverb = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (k[int(accounteee) - 1][-3],)).fetchone()
+        print(proverb)
+        print(k)
+        print(k[int(accounteee) - 1][2])
+        cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
+        conn.commit()
+        bot.send_message(message.chat.id, "Пользователь успешно удалён. Выберите дальнейшее действие", reply_markup=markup_admin)
+        bot.register_next_step_handler(message, list_blinks)
 
 
 def list_tickets(message):
     ss = message.text
     print(ss)
-
     all_messages(message)
     conn = sqlite3.connect(REPL + 'users.db')
     cur = conn.cursor()
@@ -690,12 +789,13 @@ def list_tickets(message):
         bot.clear_step_handler(message)
         all_messages(message)
     elif message.text.lower() == "назад":
+        all_messages(message)
         bot.register_next_step_handler(message, list_blinks)
+        bot.send_message(message.chat.id, "Вы в главном меню", reply_markup=markup_admin)
     elif ss.lower() == "принять":
         cur.execute('''DELETE FROM request WHERE id = ?''', (k[0],))
         print(k[2])
         proverb = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (k[2],)).fetchone()
-        print(proverb, "4e")
         cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
         cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
             towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
