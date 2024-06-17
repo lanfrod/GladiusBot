@@ -15,8 +15,13 @@ from youtube_search import YoutubeSearch
 REPL = ""  # для использования в локальной сети уберите /data/, для хоста используйте /data/
 bot = telebot.TeleBot("6392696125:AAETy96cioNjK3XIMm97Tkh_OPBmohbZRqI")  # yeap
 API = 'f2d22ddb2ceebe30809c690d48af0e56'
-EMOJIES = ['el1', 'CAACAgIAAxkBAAEGF01maayu6IWQ6hYYFrB7hM745oEjYAACLRAAAgyB4UhJJf7PO5VDsjUE', 'el1', 'el1', 'el1', 'el1'
-]
+EMOJIES = ['CAACAgIAAxkBAAEGMEhmbxtP12lTH-6Xro0WEd3mZJEtFQACG1IAAowQeUuDLK3SWk2y7TUE',
+           'CAACAgIAAxkBAAEGMEZmbxtNsL-KYunOvnr9mfnyumbUWwACRE0AAryBeUt4BrdPKPvaPDUE',
+           'CAACAgIAAxkBAAEGMERmbxtMZElajC1Dae8AAdnxGMvAPRsAAn5JAAKVmnlLBwAB0Icc3xgSNQQ',
+           'CAACAgIAAxkBAAEGMExmbxtRwtjK64DFT_kRvNoIGhv_UAACT00AAjM_eEv_pagVw7mUjDUE',
+           'CAACAgIAAxkBAAEGMEpmbxtQfhrv5f8bzER6tOC40rn-HgAC008AAnCleEtbGaePzX7lnTUE',
+           'CAACAgIAAxkBAAEGMEJmbxtMcViNdeWBswJPv5TTFKxN5QACWU8AAuh1eUvd6lZWQIHLSDUE'
+
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
         'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
@@ -548,7 +553,7 @@ def list_blinks(message):
             for i in k:
                 ii = i.split(".")
                 sec += f"Пара {k.index(i) + 1}: id1:{ii[0]}, id2:{ii[1]}, turn:{ii[2]}, board:{ii[3]}, sticker_info:{ii[4]}\n\n"
-            markup = types.ReplyKeyboardMarkup(row_width=1)
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
             markup.add(types.InlineKeyboardButton("Назад"))
             bot.send_message(message.chat.id, sec)
             bot.send_message(message.chat.id, "Напишите номер пары для удаления", reply_markup=markup)
@@ -565,7 +570,7 @@ def list_blinks(message):
                 print(i)
                 sec += f"{sos1.index(i) + 1}: id:{i[0]}, nickname:{i[1]}, wins:{i[2]}\n\n"
                 print(sec)
-            markup = types.ReplyKeyboardMarkup(row_width=1)
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
             markup.add(types.InlineKeyboardButton("Назад"))
             bot.send_message(message.chat.id, sec)
             bot.send_message(message.chat.id, "Напишите номер игрока для удаления", reply_markup=markup)
@@ -579,7 +584,7 @@ def list_blinks(message):
             sec += f"{sos1.index(i) + 1}: id:{i[0]}, login:{i[1]}, email:{i[2]}, nickname:{i[3]}, tg_id:{i[4]}, " \
                    f"admin:{i[5]}, towns_weather:{i[6]}\n\n"
             print(sec)
-        markup = types.ReplyKeyboardMarkup()
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
         markup.add(types.InlineKeyboardButton("Назад"))
         bot.send_message(message.chat.id, sec)
         bot.send_message(message.chat.id, "Напишите номер пользователя для выбора действия", reply_markup=markup)
@@ -590,7 +595,7 @@ def list_blinks(message):
             bot.send_message(message.chat.id, "Нет заявок на пост администратора")
             bot.register_next_step_handler(message, list_blinks)
         else:
-            markup = types.ReplyKeyboardMarkup()
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
             markup.add(types.InlineKeyboardButton("Принять"))
             markup.add(types.InlineKeyboardButton("Отклонить"))
             bot.send_message(message.chat.id, f"Ник: {sos1[1]} \n tg_id: {sos1[2]} \n"
