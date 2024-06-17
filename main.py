@@ -21,7 +21,6 @@ EMOJIES = ['CAACAgIAAxkBAAEGMEhmbxtP12lTH-6Xro0WEd3mZJEtFQACG1IAAowQeUuDLK3SWk2y
            'CAACAgIAAxkBAAEGMExmbxtRwtjK64DFT_kRvNoIGhv_UAACT00AAjM_eEv_pagVw7mUjDUE',
            'CAACAgIAAxkBAAEGMEpmbxtQfhrv5f8bzER6tOC40rn-HgAC008AAnCleEtbGaePzX7lnTUE',
            'CAACAgIAAxkBAAEGMEJmbxtMcViNdeWBswJPv5TTFKxN5QACWU8AAuh1eUvd6lZWQIHLSDUE']
-
 NAME = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
         'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
@@ -99,7 +98,7 @@ def game(message):
         elif len(qua) == 2 and qua[-1] != "":
             mesid = bot.send_message(message.chat.id, "Ожидайте хода соперника")
             idn1 = s[-1].split(".")
-            bot.delete_message(idn1[0], idn1[1])
+            #bot.delete_message(idn1[0], idn1[1])
             s = s[0:-2]
             game_lobby = ','.join(s) + idn1[0] + '.' + id + '.' + "1" + '.' + "?/?/?/?/?/?/?/?/?" + "." + str(mesid.id) + "." + "0"
             with open(REPL + 'game_lobby.txt', 'w') as file:
@@ -260,12 +259,12 @@ def callback_mes(callback):
                     wait = li[1]
                 elif li[1] == move and int(li[2]) % 2 == 0:
                     wait = li[0]
-                bot.delete_message(int(move), int(msg[-1]))
-                bot.delete_message(int(move), int(msg[-2]))
+                #bot.delete_message(int(move), int(msg[-1]))
+                #bot.delete_message(int(move), int(msg[-2]))
                 qu1 = bot.send_message(int(move), "Стикер отправлен, теперь сделайте свой ход")
-                msg.remove(msg[-1])
-                msg.remove(msg[-1])
-                msg.append(str(qu1.id))
+                #msg.remove(msg[-1])
+                #msg.remove(msg[-1])
+                #msg.append(str(qu1.id))
                 msg = "^".join(msg)
                 pol = "/".join(pol)
                 timered = [li[0], li[1], str(li[2]), pol, msg, str(int(li[5]) + 11)]  # 76 # 80
@@ -275,8 +274,8 @@ def callback_mes(callback):
                 with open(REPL + 'game_lobby.txt', 'w') as file:
                     file.write(game_lobby)
             elif t == 19:
-                bot.delete_message(int(move), int(msg[-1]))
-                bot.delete_message(int(move), int(msg[-2]))
+                #bot.delete_message(int(move), int(msg[-1]))
+                #bot.delete_message(int(move), int(msg[-2]))
                 msg.remove(msg[-1])
                 msg.remove(msg[-2])
                 msg = "^".join(msg)
@@ -315,28 +314,28 @@ def callback_mes(callback):
                         pol[t - 1] = "o"
                         pol = "/".join(pol)
                         wait = li[0]
-                    if li[2] == "1":
-                        bot.delete_message(wait, int(msg[0]))
-                        bot.delete_message(move, int(msg[1]))
-                        bot.delete_message(move, int(msg[2]))
-                        for x in range(3):
-                            msg.remove(msg[0])
-                    if li[2] != "1":
-                        bot.delete_message(wait, int(msg[0]))
-                        bot.delete_message(move, int(msg[1]))
-                        bot.delete_message(move, int(msg[2]))
-                        bot.delete_message(move, int(msg[3]))
-                        for x in range(4):
-                            msg.remove(msg[0])
-                    if li[5] == "-1":
-                        bot.delete_message(move, int(msg[-1]))
-                        bot.delete_message(move, int(msg[-2]))
-                        li[5] = "0"
-                        msg = []
-                    elif li[5] == "1":
-                        bot.delete_message(move,int(msg[-3]))
-                        msg.remove(msg[-3])
-                        li[5] = "-1"
+                    # if li[2] == "1":
+                    #     bot.delete_message(move, int(msg[2]))
+                    #     bot.delete_message(wait, int(msg[0]))
+                    #     bot.delete_message(move, int(msg[1]))
+                    #     for x in range(3):
+                    #         msg.remove(msg[0])
+                    # if li[2] != "1":
+                    #     bot.delete_message(wait, int(msg[0]))
+                    #     bot.delete_message(move, int(msg[1]))
+                    #     bot.delete_message(move, int(msg[2]))
+                    #     bot.delete_message(move, int(msg[3]))
+                    #     for x in range(4):
+                    #         msg.remove(msg[0])
+                    # if li[5] == "-1":
+                    #     bot.delete_message(move, int(msg[-1]))
+                    #     bot.delete_message(move, int(msg[-2]))
+                    #     li[5] = "0"
+                    #     msg = []
+                    # elif li[5] == "1":
+                    #     bot.delete_message(move,int(msg[-3]))
+                    #     msg.remove(msg[-3])
+                    #     li[5] = "-1"
                     # bot.delete_message(int(move), int(li[4]) + 2)  # 75 # 78 # 82
                     # bot.delete_message(int(move), int(li[4]) + 1)  # 74 # 77 #81
                     # if int(li[2]) == 1:
@@ -428,10 +427,10 @@ def callback_mes(callback):
                     qu1 = bot.send_message(int(wait), "Ваш ход принят. Ожидайте соперника")
                     qu2 = bot.send_message(int(move), "Соперник сделал ход")
                     qu = str(qu1.id) + "^" + str(qu2.id)
-                    bot.delete_message(wait, int(msg[0]))
-                    bot.delete_message(move, int(msg[1]))
-                    bot.delete_message(move, int(msg[2]))
-                    bot.delete_message(move, int(msg[3]))
+                    #bot.delete_message(wait, int(msg[0]))
+                    # bot.delete_message(move, int(msg[1]))
+                    # bot.delete_message(move, int(msg[2]))
+                    # bot.delete_message(move, int(msg[3]))
                     pol = "/".join(pol)
                     timered = [li[0], li[1], str(int(li[2])), pol, str(qu), li[5]]
                     r = '.'.join(timered)
@@ -810,6 +809,7 @@ def list_tickets(message):
         cur.execute('''DELETE FROM request WHERE id = ?''', (k[0],))
         print(k[2])
         proverb = cur.execute('''SELECT * FROM userinfo WHERE tg_id = ?''', (k[2],)).fetchone()
+        print(proverb)
         cur.execute('''DELETE FROM userinfo WHERE tg_id = ?''', (proverb[-3],))
         cur.execute('''INSERT INTO userinfo (id, login, email, nickname, tg_id, admin, 
             towns_weather) VALUES (?, ?, ?, ?, ?, ?, ?)''',
